@@ -1,0 +1,5 @@
+{
+  "variants": {
+    "": { "model": "glowinc:block/glow_ink" }
+  }
+}
