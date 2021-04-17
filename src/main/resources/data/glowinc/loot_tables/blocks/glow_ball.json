@@ -7,7 +7,7 @@
       "entries": [
         {
           "type": "minecraft:item",
-          "name": "minecraft:ink_sac"
+          "name": "glowinc:glow_ball"
         }
       ],
       "conditions": [
