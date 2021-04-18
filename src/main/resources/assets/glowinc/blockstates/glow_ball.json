@@ -1,5 +1,10 @@
 {
   "variants": {
-    "": { "model": "glowinc:block/glow_ball" }
+    "facing=north": { "model": "glowinc:block/glow_ball", "x": 90 },
+    "facing=south": { "model": "glowinc:block/glow_ball", "y": 180, "x": 90 },
+    "facing=west": { "model": "glowinc:block/glow_ball", "x": 90, "y": -90 },
+    "facing=east": { "model": "glowinc:block/glow_ball", "x": 90 ,"y": 90},
+    "facing=up": { "model": "glowinc:block/glow_ball" },
+    "facing=down": { "model": "glowinc:block/glow_ball", "x": 180 }
   }
 }
