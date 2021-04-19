@@ -1,5 +1,8 @@
 package com.github.jdill.glowinc.blocks;
 
+import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Maps;
+import java.util.Map;
 import javax.annotation.Nullable;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
@@ -20,7 +23,22 @@ import net.minecraft.world.IWorldReader;
 
 public class GlowBallBlock extends Block {
 
-    protected static final VoxelShape SHAPE = Block.makeCuboidShape(0.0D, 0.0D, 0.0D, 16.0D, 1.0D, 16.0D);
+    protected static final VoxelShape SHAPE_U = Block.makeCuboidShape(0.0D, 0.0D, 0.0D, 16.0D, 1.0D, 16.0D);
+    protected static final VoxelShape SHAPE_D = Block.makeCuboidShape(0.0D, 15.0D, 0.0D, 16.0D, 16.0D, 16.0D);
+    protected static final VoxelShape SHAPE_N = Block.makeCuboidShape(0.0D, 0.0D, 15.0D, 16.0D, 16.0D, 16.0D);
+    protected static final VoxelShape SHAPE_S = Block.makeCuboidShape(0.0D, 0.0D, 0.0D, 16.0D, 16.0D, 1.0D);
+    protected static final VoxelShape SHAPE_E = Block.makeCuboidShape(0.0D, 0.0D, 0.0D, 1.0D, 16.0D, 16.0D);
+    protected static final VoxelShape SHAPE_W = Block.makeCuboidShape(15.0D, 0.0D, 0.0D, 16.0D, 16.0D, 16.0D);
+    private static final Map<Direction, VoxelShape> SHAPES = Maps.newEnumMap(ImmutableMap.<Direction, VoxelShape>builder()
+        .put(Direction.NORTH, SHAPE_N)
+        .put(Direction.SOUTH, SHAPE_S)
+        .put(Direction.EAST, SHAPE_E)
+        .put(Direction.WEST, SHAPE_W)
+        .put(Direction.UP, SHAPE_U)
+        .put(Direction.DOWN, SHAPE_D)
+        .build()
+    );
+
     private static final DirectionProperty FACING = BlockStateProperties.FACING;
 
     public static final String ID = "glow_ball";
@@ -37,7 +55,7 @@ public class GlowBallBlock extends Block {
     }
 
     public VoxelShape getShape(BlockState state, IBlockReader worldIn, BlockPos pos, ISelectionContext context) {
-        return SHAPE;
+        return SHAPES.get(state.get(FACING));
     }
 
     /**
