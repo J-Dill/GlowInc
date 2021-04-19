@@ -39,19 +39,23 @@ public class GlowBallEntity extends ProjectileItemEntity implements IRendersAsIt
         return Registry.GLOW_BALL_ITEM.get();
     }
 
+    // TODO add glowing effect on entity hit
+
     @Override
     protected void func_230299_a_(BlockRayTraceResult result) {
         super.func_230299_a_(result);
         if (!this.world.isRemote) {
-            BlockPos pos = result.getPos();
+            BlockPos hitBlockPos = result.getPos();
+            BlockState hitBlockState = this.world.getBlockState(hitBlockPos);
             Direction direction = result.getFace();
-            BlockPos blockPos = pos.offset(direction);
-            BlockState blockState = this.world.getBlockState(blockPos);
-            if (blockState.isAir()) {
+            BlockPos maybeBlockPos = hitBlockPos.offset(direction);
+            BlockState blockState = this.world.getBlockState(maybeBlockPos);
+            // TODO spawn particles and sound if isn't solid
+            if (hitBlockState.isSolidSide(this.world, hitBlockPos, direction) && blockState.isAir()) {
                 BlockState state = Registry.GLOW_BALL_BLOCK.get().getDefaultState();
                 BlockState alteredBlockState = state.with(BlockStateProperties.FACING, direction);
-                this.world.setBlockState(blockPos, alteredBlockState);
-                this.world.playSound(blockPos.getX(), blockPos.getY(), blockPos.getZ(),
+                this.world.setBlockState(maybeBlockPos, alteredBlockState);
+                this.world.playSound(maybeBlockPos.getX(), maybeBlockPos.getY(), maybeBlockPos.getZ(),
                     SoundEvents.BLOCK_SLIME_BLOCK_PLACE, SoundCategory.BLOCKS,
                     1.0f, 1.0f, true
                 );
