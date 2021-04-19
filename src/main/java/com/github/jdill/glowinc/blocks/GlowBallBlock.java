@@ -34,6 +34,7 @@ public class GlowBallBlock extends Block {
             .harvestLevel(0)
             .doesNotBlockMovement()
             .notSolid()
+            .setLightLevel((state) -> 14)
         );
     }
 
