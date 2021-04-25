@@ -8,6 +8,9 @@ import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.projectile.ProjectileItemEntity;
 import net.minecraft.item.Item;
 import net.minecraft.network.IPacket;
+import net.minecraft.particles.IParticleData;
+import net.minecraft.particles.ItemParticleData;
+import net.minecraft.particles.ParticleTypes;
 import net.minecraft.state.properties.BlockStateProperties;
 import net.minecraft.util.Direction;
 import net.minecraft.util.SoundCategory;
@@ -15,7 +18,10 @@ import net.minecraft.util.SoundEvent;
 import net.minecraft.util.SoundEvents;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.BlockRayTraceResult;
+import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.world.World;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.fml.network.NetworkHooks;
 
 public class GlowBallEntity extends ProjectileItemEntity implements IRendersAsItem {
@@ -65,9 +71,40 @@ public class GlowBallEntity extends ProjectileItemEntity implements IRendersAsIt
                 soundEvent = SoundEvents.BLOCK_SLIME_BLOCK_PLACE;
             }
             this.playSound(soundEvent, 0.8f, 0.8f);
+            this.world.setEntityState(this, (byte) 3);
             this.remove();
         }
     }
+
+    @OnlyIn(Dist.CLIENT)
+    private IParticleData makeParticle() {
+        return new ItemParticleData(ParticleTypes.ITEM, this.getItem());
+    }
+
+    @OnlyIn(Dist.CLIENT)
+    public void handleStatusUpdate(byte id) {
+        if (id == 3) {
+            int numParticles = 5;
+            for (int i = 0; i < numParticles; ++i) {
+                this.world
+                    .addParticle(makeParticle(), this.getPosX(), this.getPosY(), this.getPosZ(),
+                        ((double) this.rand.nextFloat() - 0.5D) * 0.08D,
+                        ((double) this.rand.nextFloat() - 0.1D) * 0.08D,
+                        ((double) this.rand.nextFloat() - 0.5D) * 0.08D);
+            }
+        }
+
+    }
+
+//    @Override
+//    protected void onImpact(RayTraceResult result) {
+//        super.onImpact(result);
+//        if (!this.world.isRemote) {
+//            this.world.setEntityState(this, (byte)3);
+//            this.remove();
+//        }
+//
+//    }
 
     @Override
     public IPacket<?> createSpawnPacket() {
