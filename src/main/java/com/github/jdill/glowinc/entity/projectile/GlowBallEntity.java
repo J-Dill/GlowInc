@@ -2,6 +2,7 @@ package com.github.jdill.glowinc.entity.projectile;
 
 import com.github.jdill.glowinc.Registry;
 import net.minecraft.block.BlockState;
+import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.IRendersAsItem;
 import net.minecraft.entity.LivingEntity;
@@ -11,6 +12,8 @@ import net.minecraft.network.IPacket;
 import net.minecraft.particles.IParticleData;
 import net.minecraft.particles.ItemParticleData;
 import net.minecraft.particles.ParticleTypes;
+import net.minecraft.potion.EffectInstance;
+import net.minecraft.potion.Effects;
 import net.minecraft.state.properties.BlockStateProperties;
 import net.minecraft.util.Direction;
 import net.minecraft.util.SoundCategory;
@@ -18,6 +21,7 @@ import net.minecraft.util.SoundEvent;
 import net.minecraft.util.SoundEvents;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.BlockRayTraceResult;
+import net.minecraft.util.math.EntityRayTraceResult;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.world.World;
 import net.minecraftforge.api.distmarker.Dist;
@@ -54,6 +58,15 @@ public class GlowBallEntity extends ProjectileItemEntity implements IRendersAsIt
     }
 
     // TODO add glowing effect on entity hit
+
+
+    @Override
+    protected void onEntityHit(EntityRayTraceResult result) {
+        Entity entity = result.getEntity();
+        if (entity instanceof LivingEntity) {
+            ((LivingEntity) entity).addPotionEffect(new EffectInstance(Effects.GLOWING, 200));
+        }
+    }
 
     @Override
     protected void func_230299_a_(BlockRayTraceResult result) {
