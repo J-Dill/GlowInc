@@ -11,6 +11,7 @@ import net.minecraft.network.IPacket;
 import net.minecraft.state.properties.BlockStateProperties;
 import net.minecraft.util.Direction;
 import net.minecraft.util.SoundCategory;
+import net.minecraft.util.SoundEvent;
 import net.minecraft.util.SoundEvents;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.BlockRayTraceResult;
@@ -39,6 +40,11 @@ public class GlowBallEntity extends ProjectileItemEntity implements IRendersAsIt
         return Registry.GLOW_BALL_ITEM.get();
     }
 
+    @Override
+    public SoundCategory getSoundCategory() {
+        return SoundCategory.BLOCKS;
+    }
+
     // TODO add glowing effect on entity hit
 
     @Override
@@ -51,16 +57,15 @@ public class GlowBallEntity extends ProjectileItemEntity implements IRendersAsIt
             BlockPos maybeBlockPos = hitBlockPos.offset(direction);
             BlockState blockState = this.world.getBlockState(maybeBlockPos);
             // TODO spawn particles and sound if isn't solid
+            SoundEvent soundEvent = SoundEvents.BLOCK_SLIME_BLOCK_BREAK;
             if (hitBlockState.isSolidSide(this.world, hitBlockPos, direction) && blockState.isAir()) {
                 BlockState state = Registry.GLOW_BALL_BLOCK.get().getDefaultState();
                 BlockState alteredBlockState = state.with(BlockStateProperties.FACING, direction);
                 this.world.setBlockState(maybeBlockPos, alteredBlockState);
-                this.world.playSound(maybeBlockPos.getX(), maybeBlockPos.getY(), maybeBlockPos.getZ(),
-                    SoundEvents.BLOCK_SLIME_BLOCK_PLACE, SoundCategory.BLOCKS,
-                    1.0f, 1.0f, true
-                );
-                this.remove();
+                soundEvent = SoundEvents.BLOCK_SLIME_BLOCK_PLACE;
             }
+            this.playSound(soundEvent, 0.8f, 0.8f);
+            this.remove();
         }
     }
 
