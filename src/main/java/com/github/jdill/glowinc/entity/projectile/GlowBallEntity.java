@@ -28,6 +28,8 @@ public class GlowBallEntity extends ProjectileItemEntity implements IRendersAsIt
 
     public static final String ID = "glow_ball_entity";
 
+    private SoundEvent soundEvent = SoundEvents.BLOCK_SLIME_BLOCK_BREAK;
+
     public GlowBallEntity(LivingEntity livingEntityIn, World worldIn) {
         super(Registry.SAP_ENTITY.get(), livingEntityIn, worldIn);
     }
@@ -63,16 +65,12 @@ public class GlowBallEntity extends ProjectileItemEntity implements IRendersAsIt
             BlockPos maybeBlockPos = hitBlockPos.offset(direction);
             BlockState blockState = this.world.getBlockState(maybeBlockPos);
             // TODO spawn particles and sound if isn't solid
-            SoundEvent soundEvent = SoundEvents.BLOCK_SLIME_BLOCK_BREAK;
             if (hitBlockState.isSolidSide(this.world, hitBlockPos, direction) && blockState.isAir()) {
                 BlockState state = Registry.GLOW_BALL_BLOCK.get().getDefaultState();
                 BlockState alteredBlockState = state.with(BlockStateProperties.FACING, direction);
                 this.world.setBlockState(maybeBlockPos, alteredBlockState);
                 soundEvent = SoundEvents.BLOCK_SLIME_BLOCK_PLACE;
             }
-            this.playSound(soundEvent, 0.8f, 0.8f);
-            this.world.setEntityState(this, (byte) 3);
-            this.remove();
         }
     }
 
@@ -93,18 +91,18 @@ public class GlowBallEntity extends ProjectileItemEntity implements IRendersAsIt
                         ((double) this.rand.nextFloat() - 0.5D) * 0.08D);
             }
         }
-
     }
 
-//    @Override
-//    protected void onImpact(RayTraceResult result) {
-//        super.onImpact(result);
-//        if (!this.world.isRemote) {
-//            this.world.setEntityState(this, (byte)3);
-//            this.remove();
-//        }
-//
-//    }
+    @Override
+    protected void onImpact(RayTraceResult result) {
+        super.onImpact(result);
+        if (!this.world.isRemote) {
+            this.world.setEntityState(this, (byte) 3);
+            this.playSound(soundEvent, 0.8f, 0.8f);
+            this.remove();
+        }
+
+    }
 
     @Override
     public IPacket<?> createSpawnPacket() {
