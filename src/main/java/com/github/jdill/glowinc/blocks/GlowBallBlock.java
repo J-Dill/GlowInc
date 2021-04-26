@@ -45,6 +45,7 @@ public class GlowBallBlock extends Block {
 
     public static final String ID = "glow_ball";
 
+    //TODO make water loggable
     public GlowBallBlock() {
         super(Block.Properties.create(Material.OCEAN_PLANT)
             .zeroHardnessAndResistance()

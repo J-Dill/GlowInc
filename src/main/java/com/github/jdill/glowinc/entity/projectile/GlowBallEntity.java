@@ -57,9 +57,6 @@ public class GlowBallEntity extends ProjectileItemEntity implements IRendersAsIt
         return SoundCategory.BLOCKS;
     }
 
-    // TODO add glowing effect on entity hit
-
-
     @Override
     protected void onEntityHit(EntityRayTraceResult result) {
         Entity entity = result.getEntity();
@@ -77,7 +74,6 @@ public class GlowBallEntity extends ProjectileItemEntity implements IRendersAsIt
             Direction direction = result.getFace();
             BlockPos maybeBlockPos = hitBlockPos.offset(direction);
             BlockState blockState = this.world.getBlockState(maybeBlockPos);
-            // TODO spawn particles and sound if isn't solid
             if (hitBlockState.isSolidSide(this.world, hitBlockPos, direction) && blockState.isAir()) {
                 BlockState state = Registry.GLOW_BALL_BLOCK.get().getDefaultState();
                 BlockState alteredBlockState = state.with(BlockStateProperties.FACING, direction);
