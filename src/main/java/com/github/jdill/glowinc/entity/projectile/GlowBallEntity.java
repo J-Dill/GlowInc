@@ -2,6 +2,7 @@ package com.github.jdill.glowinc.entity.projectile;
 
 import com.github.jdill.glowinc.Registry;
 import net.minecraft.block.BlockState;
+import net.minecraft.block.Blocks;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.IRendersAsItem;
@@ -74,7 +75,9 @@ public class GlowBallEntity extends ProjectileItemEntity implements IRendersAsIt
             Direction direction = result.getFace();
             BlockPos maybeBlockPos = hitBlockPos.offset(direction);
             BlockState blockState = this.world.getBlockState(maybeBlockPos);
-            if (hitBlockState.isSolidSide(this.world, hitBlockPos, direction) && blockState.isAir()) {
+            if (hitBlockState.isSolidSide(this.world, hitBlockPos, direction) &&
+                (blockState.isAir() || Blocks.WATER.equals(blockState.getBlock()))
+            ) {
                 BlockState state = Registry.GLOW_BALL_BLOCK.get().getDefaultState();
                 BlockState alteredBlockState = state.with(BlockStateProperties.FACING, direction);
                 this.world.setBlockState(maybeBlockPos, alteredBlockState);
@@ -111,6 +114,11 @@ public class GlowBallEntity extends ProjectileItemEntity implements IRendersAsIt
             this.remove();
         }
 
+    }
+
+    @Override
+    public boolean isInWater() {
+        return false;
     }
 
     @Override
