@@ -1,13 +1,15 @@
 package com.github.jdill.glowinc.entity.projectile;
 
 import com.github.jdill.glowinc.Registry;
+import com.github.jdill.glowinc.blocks.GlowBallBlock;
 import net.minecraft.block.BlockState;
-import net.minecraft.block.Blocks;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.IRendersAsItem;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.projectile.ProjectileItemEntity;
+import net.minecraft.fluid.FluidState;
+import net.minecraft.fluid.Fluids;
 import net.minecraft.item.Item;
 import net.minecraft.network.IPacket;
 import net.minecraft.particles.IParticleData;
@@ -74,14 +76,17 @@ public class GlowBallEntity extends ProjectileItemEntity implements IRendersAsIt
             BlockState hitBlockState = this.world.getBlockState(hitBlockPos);
             Direction direction = result.getFace();
             BlockPos maybeBlockPos = hitBlockPos.offset(direction);
-            BlockState blockState = this.world.getBlockState(maybeBlockPos);
-            if (hitBlockState.isSolidSide(this.world, hitBlockPos, direction) &&
-                (blockState.isAir() || Blocks.WATER.equals(blockState.getBlock()))
-            ) {
-                BlockState state = Registry.GLOW_BALL_BLOCK.get().getDefaultState();
-                BlockState alteredBlockState = state.with(BlockStateProperties.FACING, direction);
-                this.world.setBlockState(maybeBlockPos, alteredBlockState);
-                soundEvent = SoundEvents.BLOCK_SLIME_BLOCK_PLACE;
+            if (hitBlockState.isSolidSide(this.world, hitBlockPos, direction)) {
+                BlockState maybeBlockState = this.world.getBlockState(maybeBlockPos);
+                FluidState maybeFluidState = this.world.getFluidState(maybeBlockPos);
+                boolean isWater = maybeFluidState.getFluid() == Fluids.WATER;
+                if (maybeBlockState.isAir() || isWater) {
+                    BlockState state = Registry.GLOW_BALL_BLOCK.get().getDefaultState();
+                    BlockState alteredBlockState = state.with(BlockStateProperties.FACING, direction).with(
+                        GlowBallBlock.WATERLOGGED, isWater);
+                    this.world.setBlockState(maybeBlockPos, alteredBlockState);
+                    soundEvent = SoundEvents.BLOCK_SLIME_BLOCK_PLACE;
+                }
             }
         }
     }

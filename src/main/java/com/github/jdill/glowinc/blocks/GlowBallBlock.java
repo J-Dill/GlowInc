@@ -7,9 +7,13 @@ import javax.annotation.Nullable;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
+import net.minecraft.block.IWaterLoggable;
 import net.minecraft.block.SoundType;
 import net.minecraft.block.material.Material;
+import net.minecraft.fluid.FluidState;
+import net.minecraft.fluid.Fluids;
 import net.minecraft.item.BlockItemUseContext;
+import net.minecraft.state.BooleanProperty;
 import net.minecraft.state.DirectionProperty;
 import net.minecraft.state.StateContainer;
 import net.minecraft.state.properties.BlockStateProperties;
@@ -23,8 +27,9 @@ import net.minecraft.world.IBlockReader;
 import net.minecraft.world.IWorld;
 import net.minecraft.world.IWorldReader;
 
-public class GlowBallBlock extends Block {
+public class GlowBallBlock extends Block implements IWaterLoggable {
 
+    public static final BooleanProperty WATERLOGGED = BlockStateProperties.WATERLOGGED;
     protected static final VoxelShape SHAPE_U = Block.makeCuboidShape(0.0D, 0.0D, 0.0D, 16.0D, 1.0D, 16.0D);
     protected static final VoxelShape SHAPE_D = Block.makeCuboidShape(0.0D, 15.0D, 0.0D, 16.0D, 16.0D, 16.0D);
     protected static final VoxelShape SHAPE_N = Block.makeCuboidShape(0.0D, 0.0D, 15.0D, 16.0D, 16.0D, 16.0D);
@@ -55,6 +60,7 @@ public class GlowBallBlock extends Block {
             .notSolid()
             .setLightLevel((state) -> 14)
         );
+        this.setDefaultState(this.getStateContainer().getBaseState().with(WATERLOGGED, Boolean.FALSE));
     }
 
     public VoxelShape getShape(BlockState state, IBlockReader worldIn, BlockPos pos, ISelectionContext context) {
@@ -78,6 +84,7 @@ public class GlowBallBlock extends Block {
     @Nullable
     public BlockState getStateForPlacement(BlockItemUseContext context) {
         BlockState blockstate = this.getDefaultState();
+        FluidState fluidState = context.getWorld().getFluidState(context.getPos());
         IWorldReader iworldreader = context.getWorld();
         BlockPos blockpos = context.getPos();
         Direction[] adirection = context.getNearestLookingDirections();
@@ -86,7 +93,7 @@ public class GlowBallBlock extends Block {
             Direction direction1 = direction.getOpposite();
             blockstate = blockstate.with(FACING, direction1);
             if (blockstate.isValidPosition(iworldreader, blockpos)) {
-                return blockstate;
+                return blockstate.with(WATERLOGGED, fluidState.getFluid() == Fluids.WATER);
             }
         }
 
@@ -98,7 +105,14 @@ public class GlowBallBlock extends Block {
      */
     @Override
     public BlockState updatePostPlacement(BlockState stateIn, Direction facing, BlockState facingState, IWorld worldIn, BlockPos currentPos, BlockPos facingPos) {
+        if (stateIn.get(WATERLOGGED)) {
+            worldIn.getPendingFluidTicks().scheduleTick(currentPos, Fluids.WATER, Fluids.WATER.getTickRate(worldIn));
+        }
         return facing.getOpposite() == stateIn.get(FACING) && !stateIn.isValidPosition(worldIn, currentPos) ? Blocks.AIR.getDefaultState() : stateIn;
+    }
+
+    public FluidState getFluidState(BlockState state) {
+        return state.get(WATERLOGGED) ? Fluids.WATER.getStillFluidState(false) : super.getFluidState(state);
     }
 
     @Override
@@ -113,7 +127,7 @@ public class GlowBallBlock extends Block {
 
     @Override
     protected void fillStateContainer(StateContainer.Builder<Block, BlockState> builder) {
-        builder.add(FACING);
+        builder.add(FACING, WATERLOGGED);
     }
 
 }
