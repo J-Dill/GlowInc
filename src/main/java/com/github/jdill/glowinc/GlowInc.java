@@ -52,6 +52,7 @@ public class GlowInc {
         IEventBus modEventBus = FMLJavaModLoadingContext.get().getModEventBus();
         Registry.BLOCKS.register(modEventBus);
         Registry.ITEMS.register(modEventBus);
+        Registry.FLUIDS.register(modEventBus);
         Registry.ENTITIES.register(modEventBus);
 
         // Register ourselves for server and other game events we are interested in
