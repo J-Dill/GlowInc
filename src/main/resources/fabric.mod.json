@@ -1,0 +1,26 @@
+{
+  "schemaVersion": 1,
+  "id": "glowinc-fabric",
+  "version": "${version}",
+  "name": "GlowInc",
+  "description": "",
+  "authors": [
+    "JDill"
+  ],
+  "contact": {},
+  "license": "MIT",
+  "environment": "*",
+  "entrypoints": {
+    "client": [
+      "com.github.jdill.glowincfabric.client.GlowincFabricClient"
+    ],
+    "main": [
+      "com.github.jdill.glowincfabric.GlowincFabric"
+    ]
+  },
+  "depends": {
+    "fabricloader": ">=0.11.6",
+    "fabric": "*",
+    "minecraft": "1.17"
+  }
+}

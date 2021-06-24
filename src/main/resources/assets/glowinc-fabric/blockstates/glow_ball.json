@@ -1,0 +1,10 @@
+{
+  "variants": {
+    "facing=up": { "model": "glowinc-fabric:block/glow_ball" },
+    "facing=down": { "model": "glowinc-fabric:block/glow_ball", "x": 180 },
+    "facing=north": { "model": "glowinc-fabric:block/glow_ball", "x": 90 },
+    "facing=south": { "model": "glowinc-fabric:block/glow_ball", "y": 180, "x": 90 },
+    "facing=east": { "model": "glowinc-fabric:block/glow_ball", "x": 90 ,"y": 90},
+    "facing=west": { "model": "glowinc-fabric:block/glow_ball", "x": 90, "y": -90 }
+  }
+}

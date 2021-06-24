@@ -1,7 +1,7 @@
 {
 	"textures": {
-		"0": "glowinc:block/glow_ball",
-		"particle": "glowinc:block/glow_ball"
+		"0": "glowinc-fabric:block/glow_ball",
+		"particle": "glowinc-fabric:block/glow_ball"
 	},
 	"elements": [
 		{
