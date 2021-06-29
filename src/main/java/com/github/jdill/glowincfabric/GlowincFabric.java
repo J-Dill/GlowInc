@@ -5,6 +5,7 @@ import com.github.jdill.glowincfabric.entity.projectile.GlowBallEntity;
 import com.github.jdill.glowincfabric.items.GlowBallItem;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.object.builder.v1.entity.FabricEntityTypeBuilder;
+import net.minecraft.entity.EntityDimensions;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.SpawnGroup;
 import net.minecraft.util.registry.Registry;
@@ -20,7 +21,9 @@ public class GlowincFabric implements ModInitializer {
     public static final EntityType<GlowBallEntity> GLOW_BALL_ENTITY = Registry.register(
         Registry.ENTITY_TYPE,
         GlowBallEntity.ID,
-        FabricEntityTypeBuilder.<GlowBallEntity>create(SpawnGroup.MISC, GlowBallEntity::new).build()
+        FabricEntityTypeBuilder.<GlowBallEntity>create(SpawnGroup.MISC, GlowBallEntity::new)
+            .dimensions(EntityDimensions.fixed(0.25F, 0.25F))
+            .build()
     );
 
     @Override

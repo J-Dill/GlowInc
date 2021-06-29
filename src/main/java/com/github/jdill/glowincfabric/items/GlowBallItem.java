@@ -27,7 +27,7 @@ public class GlowBallItem extends BlockItem {
             SoundEvents.ENTITY_SNOWBALL_THROW, SoundCategory.NEUTRAL, 0.5F, 0.4F / (worldIn.random.nextFloat() * 0.4F + 0.8F));
         if (!worldIn.isClient()) {
             GlowBallEntity glowBallEntity = new GlowBallEntity(playerIn, worldIn);
-            glowBallEntity.setProperties(playerIn, playerIn.getPitch(), playerIn.getYaw(), 0.0F, 1.5F, 0.0F);
+            glowBallEntity.setProperties(playerIn, playerIn.getPitch(), playerIn.getYaw(), 0.0F, 1.5F, 1.0F);
             worldIn.spawnEntity(glowBallEntity);
         }
 
