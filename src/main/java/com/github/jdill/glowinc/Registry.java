@@ -30,7 +30,7 @@ public class Registry {
     //===============
     // Entities
     //===============
-    public static final RegistryObject<EntityType<GlowBallEntity>> SAP_ENTITY = ENTITIES.register(GlowBallEntity.ID,
+    public static final RegistryObject<EntityType<GlowBallEntity>> GLOW_BALL_ENTITY = ENTITIES.register(GlowBallEntity.ID,
         () -> EntityType.Builder.<GlowBallEntity>create(GlowBallEntity::new, EntityClassification.MISC)
             .size(0.25F, 0.25F)
             .trackingRange(4)

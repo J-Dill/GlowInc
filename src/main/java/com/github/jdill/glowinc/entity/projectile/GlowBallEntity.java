@@ -31,6 +31,10 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.fml.network.NetworkHooks;
 
+@OnlyIn(
+    value = Dist.CLIENT,
+    _interface = IRendersAsItem.class
+)
 public class GlowBallEntity extends ProjectileItemEntity implements IRendersAsItem {
 
     public static final String ID = "glow_ball_entity";
@@ -38,7 +42,7 @@ public class GlowBallEntity extends ProjectileItemEntity implements IRendersAsIt
     private SoundEvent soundEvent = SoundEvents.BLOCK_SLIME_BLOCK_BREAK;
 
     public GlowBallEntity(LivingEntity livingEntityIn, World worldIn) {
-        super(Registry.SAP_ENTITY.get(), livingEntityIn, worldIn);
+        super(Registry.GLOW_BALL_ENTITY.get(), livingEntityIn, worldIn);
     }
 
     public GlowBallEntity(EntityType<GlowBallEntity> entityType, World worldIn) {
@@ -63,7 +67,7 @@ public class GlowBallEntity extends ProjectileItemEntity implements IRendersAsIt
     @Override
     protected void onEntityHit(EntityRayTraceResult result) {
         Entity entity = result.getEntity();
-        if (entity instanceof LivingEntity) {
+        if (!this.world.isRemote && entity instanceof LivingEntity) {
             ((LivingEntity) entity).addPotionEffect(new EffectInstance(Effects.GLOWING, 200));
         }
     }

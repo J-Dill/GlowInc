@@ -14,7 +14,7 @@ public class ClientSetup {
     }
 
     static void init(FMLClientSetupEvent event) {
-        RenderingRegistry.registerEntityRenderingHandler(Registry.SAP_ENTITY.get(),
+        RenderingRegistry.registerEntityRenderingHandler(Registry.GLOW_BALL_ENTITY.get(),
             manager -> new SpriteRenderer<>(manager, Minecraft.getInstance().getItemRenderer()));
     }
 
