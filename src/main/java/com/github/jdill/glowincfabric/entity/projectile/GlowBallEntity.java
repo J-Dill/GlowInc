@@ -67,7 +67,7 @@ public class GlowBallEntity extends ThrownItemEntity {
     @Override
     protected void onEntityHit(EntityHitResult result) {
         Entity entity = result.getEntity();
-        if (entity instanceof LivingEntity) {
+        if (!this.world.isClient && entity instanceof LivingEntity) {
             ((LivingEntity) entity).addStatusEffect(new StatusEffectInstance(StatusEffects.GLOWING, 200));
         }
     }
