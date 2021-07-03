@@ -86,6 +86,10 @@ dependencies {
     compileOnly fg.deobf("mezz.jei:jei-${jeiMcVersion}:${jeiVersion}:api")
     // at runtime, use the full JEI jar
     runtimeOnly fg.deobf("mezz.jei:jei-${jeiMcVersion}:${jeiVersion}")
+
+    // Mekanism
+    compileOnly "mekanism:Mekanism:${mekanismVersion}:api"
+    runtimeOnly fg.deobf("mekanism:Mekanism:${mekanismVersion}")// core
 }
 
 repositories {
@@ -95,6 +99,9 @@ repositories {
     }
     maven { // CurseMaven
         url "https://www.cursemaven.com"
+    }
+    maven { // Mekanism
+        url 'https://modmaven.dev/'
     }
 }
 
