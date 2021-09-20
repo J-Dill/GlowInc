@@ -6,6 +6,7 @@ import com.github.jdill.glowinc.entity.projectile.GlowBallEntity;
 import com.github.jdill.glowinc.fluids.GlowInkFluid;
 import com.github.jdill.glowinc.items.GlowBallItem;
 import com.github.jdill.glowinc.items.GlowInkBucketItem;
+import com.github.jdill.glowinc.items.InkGunItem;
 import net.minecraft.block.Block;
 import net.minecraft.block.FlowingFluidBlock;
 import net.minecraft.entity.EntityClassification;
@@ -37,6 +38,7 @@ public class Registry {
     public static final RegistryObject<Item> GLOW_BALL_ITEM = ITEMS.register(GlowBallBlock.ID, GlowBallItem::new);
     public static final RegistryObject<Item> GLOW_INK_BUCKET_ITEM = ITEMS.register(
         GlowInkBucketItem.ID, GlowInkBucketItem::new);
+    public static final RegistryObject<Item> INK_GUN_ITEM = ITEMS.register(InkGunItem.ID, InkGunItem::new);
 
     //===============
     // Fluids
