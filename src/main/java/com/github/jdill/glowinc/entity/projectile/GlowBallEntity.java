@@ -7,6 +7,7 @@ import net.minecraft.core.Direction;
 import net.minecraft.core.particles.ItemParticleOption;
 import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.network.protocol.Packet;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.effect.MobEffectInstance;
@@ -26,6 +27,7 @@ import net.minecraft.world.phys.EntityHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
+import net.minecraftforge.fmllegacy.network.NetworkHooks;
 
 import javax.annotation.Nonnull;
 
@@ -95,7 +97,7 @@ public class GlowBallEntity extends ThrowableItemProjectile {
     }
 
     @OnlyIn(Dist.CLIENT)
-    public void handleStatusUpdate(byte id) {
+    public void handleEntityEvent(byte id) {
         if (id == 3) {
             int numParticles = 5;
             for (int i = 0; i < numParticles; ++i) {
@@ -114,8 +116,7 @@ public class GlowBallEntity extends ThrowableItemProjectile {
         if (!this.level.isClientSide()) {
             this.level.broadcastEntityEvent(this, (byte) 3);
             this.playSound(soundEvent, 0.8f, 0.8f);
-//            this.remove();
-            this.setRemoved(RemovalReason.DISCARDED);
+            this.discard();
         }
     }
 
@@ -124,11 +125,10 @@ public class GlowBallEntity extends ThrowableItemProjectile {
         return false;
     }
 
-//    @Override
-//    public IPacket<?> createSpawnPacket() {
-//        return NetworkHooks.getEntitySpawningPacket(this);
-//    }
-
-
+    @Nonnull
+    @Override
+    public Packet<?> getAddEntityPacket() {
+        return NetworkHooks.getEntitySpawningPacket(this);
+    }
 
 }

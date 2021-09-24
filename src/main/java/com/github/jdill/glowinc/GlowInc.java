@@ -30,6 +30,7 @@ public class GlowInc {
         Registry.ENTITIES.register(modEventBus);
 
         // Register ourselves for server and other game events we are interested in
+        modEventBus.register(this);
         MinecraftForge.EVENT_BUS.register(this);
 
 //        DistExecutor.safeRunWhenOn(Dist.CLIENT, () -> ClientSetup::initEarly);
