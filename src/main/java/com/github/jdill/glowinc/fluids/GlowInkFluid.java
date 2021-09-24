@@ -1,7 +1,7 @@
 package com.github.jdill.glowinc.fluids;
 
 import com.github.jdill.glowinc.Registry;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.fluids.FluidAttributes;
 import net.minecraftforge.fluids.ForgeFlowingFluid;
 

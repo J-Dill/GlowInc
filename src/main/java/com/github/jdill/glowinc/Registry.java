@@ -7,14 +7,14 @@ import com.github.jdill.glowinc.fluids.GlowInkFluid;
 import com.github.jdill.glowinc.items.GlowBallItem;
 import com.github.jdill.glowinc.items.GlowInkBucketItem;
 import com.github.jdill.glowinc.items.InkGunItem;
-import net.minecraft.block.Block;
-import net.minecraft.block.FlowingFluidBlock;
-import net.minecraft.entity.EntityClassification;
-import net.minecraft.entity.EntityType;
-import net.minecraft.fluid.Fluid;
-import net.minecraft.item.Item;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.MobCategory;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.LiquidBlock;
+import net.minecraft.world.level.material.Fluid;
 import net.minecraftforge.fluids.ForgeFlowingFluid;
-import net.minecraftforge.fml.RegistryObject;
+import net.minecraftforge.fmllegacy.RegistryObject;
 import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;
 
@@ -29,7 +29,7 @@ public class Registry {
     // Blocks
     //===============
     public static final RegistryObject<Block> GLOW_BALL_BLOCK = BLOCKS.register(GlowBallBlock.ID, GlowBallBlock::new);
-    public static final RegistryObject<FlowingFluidBlock> GLOW_INK_BLOCK = BLOCKS.register(
+    public static final RegistryObject<LiquidBlock> GLOW_INK_BLOCK = BLOCKS.register(
         GlowInkFluidBlock.ID, GlowInkFluidBlock::new);
 
     //===============
@@ -52,9 +52,9 @@ public class Registry {
     // Entities
     //===============
     public static final RegistryObject<EntityType<GlowBallEntity>> GLOW_BALL_ENTITY = ENTITIES.register(GlowBallEntity.ID,
-        () -> EntityType.Builder.<GlowBallEntity>create(GlowBallEntity::new, EntityClassification.MISC)
-            .size(0.25F, 0.25F)
-            .trackingRange(4)
-            .setShouldReceiveVelocityUpdates(true)
-            .build(GlowBallEntity.ID));
+        () -> EntityType.Builder.<GlowBallEntity>of(GlowBallEntity::new, MobCategory.MISC)
+                .sized(0.25F, 0.25F)
+                .setTrackingRange(4)
+                .setShouldReceiveVelocityUpdates(true)
+                .build(GlowBallEntity.ID));
 }

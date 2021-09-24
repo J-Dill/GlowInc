@@ -2,102 +2,96 @@ package com.github.jdill.glowinc.entity.projectile;
 
 import com.github.jdill.glowinc.Registry;
 import com.github.jdill.glowinc.blocks.GlowBallBlock;
-import net.minecraft.block.BlockState;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityType;
-import net.minecraft.entity.IRendersAsItem;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.projectile.ProjectileItemEntity;
-import net.minecraft.fluid.FluidState;
-import net.minecraft.fluid.Fluids;
-import net.minecraft.item.Item;
-import net.minecraft.network.IPacket;
-import net.minecraft.particles.IParticleData;
-import net.minecraft.particles.ItemParticleData;
-import net.minecraft.particles.ParticleTypes;
-import net.minecraft.potion.EffectInstance;
-import net.minecraft.potion.Effects;
-import net.minecraft.state.properties.BlockStateProperties;
-import net.minecraft.util.Direction;
-import net.minecraft.util.SoundCategory;
-import net.minecraft.util.SoundEvent;
-import net.minecraft.util.SoundEvents;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.BlockRayTraceResult;
-import net.minecraft.util.math.EntityRayTraceResult;
-import net.minecraft.util.math.RayTraceResult;
-import net.minecraft.world.World;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.core.particles.ItemParticleOption;
+import net.minecraft.core.particles.ParticleOptions;
+import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.sounds.SoundEvent;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.world.effect.MobEffects;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.projectile.ThrowableItemProjectile;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.properties.BlockStateProperties;
+import net.minecraft.world.level.material.FluidState;
+import net.minecraft.world.level.material.Fluids;
+import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.EntityHitResult;
+import net.minecraft.world.phys.HitResult;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.fml.network.NetworkHooks;
 
-@OnlyIn(
-    value = Dist.CLIENT,
-    _interface = IRendersAsItem.class
-)
-public class GlowBallEntity extends ProjectileItemEntity implements IRendersAsItem {
+import javax.annotation.Nonnull;
+
+//@OnlyIn(
+//    value = Dist.CLIENT,
+//    _interface = IItemRenderProperties.class
+//)
+public class GlowBallEntity extends ThrowableItemProjectile {
 
     public static final String ID = "glow_ball_entity";
 
-    private SoundEvent soundEvent = SoundEvents.BLOCK_SLIME_BLOCK_BREAK;
+    private SoundEvent soundEvent = SoundEvents.SLIME_BLOCK_BREAK;
 
-    public GlowBallEntity(LivingEntity livingEntityIn, World worldIn) {
+    public GlowBallEntity(LivingEntity livingEntityIn, Level worldIn) {
         super(Registry.GLOW_BALL_ENTITY.get(), livingEntityIn, worldIn);
     }
 
-    public GlowBallEntity(EntityType<GlowBallEntity> entityType, World worldIn) {
+    public GlowBallEntity(EntityType<GlowBallEntity> entityType, Level worldIn) {
         super(entityType, worldIn);
     }
 
-    public GlowBallEntity(EntityType<? extends ProjectileItemEntity> type, double x, double y, double z,
-        World worldIn) {
+    public GlowBallEntity(EntityType<? extends ThrowableItemProjectile> type, double x, double y, double z,
+        Level worldIn) {
         super(type, x, y, z, worldIn);
     }
 
+    @Nonnull
     @Override
     protected Item getDefaultItem() {
         return Registry.GLOW_BALL_ITEM.get();
     }
 
     @Override
-    public SoundCategory getSoundCategory() {
-        return SoundCategory.BLOCKS;
-    }
-
-    @Override
-    protected void onEntityHit(EntityRayTraceResult result) {
+    protected void onHitEntity(EntityHitResult result) {
         Entity entity = result.getEntity();
-        if (!this.world.isRemote && entity instanceof LivingEntity) {
-            ((LivingEntity) entity).addPotionEffect(new EffectInstance(Effects.GLOWING, 200));
+        if (!this.level.isClientSide() && entity instanceof LivingEntity) {
+            ((LivingEntity) entity).addEffect(new MobEffectInstance(MobEffects.GLOWING, 200));
         }
     }
 
     @Override
-    protected void func_230299_a_(BlockRayTraceResult result) {
-        super.func_230299_a_(result);
-        if (!this.world.isRemote) {
-            BlockPos hitBlockPos = result.getPos();
-            BlockState hitBlockState = this.world.getBlockState(hitBlockPos);
-            Direction direction = result.getFace();
-            BlockPos maybeBlockPos = hitBlockPos.offset(direction);
-            if (hitBlockState.isSolidSide(this.world, hitBlockPos, direction)) {
-                BlockState maybeBlockState = this.world.getBlockState(maybeBlockPos);
-                FluidState maybeFluidState = this.world.getFluidState(maybeBlockPos);
-                boolean isWater = maybeFluidState.getFluid() == Fluids.WATER;
+    protected void onHitBlock(BlockHitResult result) {
+        super.onHitBlock(result);
+        if (!this.level.isClientSide()) {
+            BlockPos hitBlockPos = result.getBlockPos();
+            BlockState hitBlockState = this.level.getBlockState(hitBlockPos);
+            Direction direction = result.getDirection();
+            BlockPos maybeBlockPos = hitBlockPos.relative(direction);
+            if (hitBlockState.isFaceSturdy(this.level, hitBlockPos, direction)) {
+                BlockState maybeBlockState = this.level.getBlockState(maybeBlockPos);
+                FluidState maybeFluidState = this.level.getFluidState(maybeBlockPos);
+                boolean isWater = maybeFluidState.getType() == Fluids.WATER;
                 if (maybeBlockState.isAir() || isWater) {
-                    BlockState state = Registry.GLOW_BALL_BLOCK.get().getDefaultState();
-                    BlockState alteredBlockState = state.with(BlockStateProperties.FACING, direction).with(
-                        GlowBallBlock.WATERLOGGED, isWater);
-                    this.world.setBlockState(maybeBlockPos, alteredBlockState);
-                    soundEvent = SoundEvents.BLOCK_SLIME_BLOCK_PLACE;
+                    BlockState state = Registry.GLOW_BALL_BLOCK.get().defaultBlockState();
+                    BlockState alteredBlockState = state.setValue(BlockStateProperties.FACING, direction).setValue(
+                            GlowBallBlock.WATERLOGGED, isWater);
+                    this.level.setBlockAndUpdate(maybeBlockPos, alteredBlockState);
+                    soundEvent = SoundEvents.SLIME_BLOCK_PLACE;
                 }
             }
         }
     }
 
     @OnlyIn(Dist.CLIENT)
-    private IParticleData makeParticle() {
-        return new ItemParticleData(ParticleTypes.ITEM, this.getItem());
+    private ParticleOptions makeParticle() {
+        return new ItemParticleOption(ParticleTypes.ITEM, this.getItem());
     }
 
     @OnlyIn(Dist.CLIENT)
@@ -105,24 +99,24 @@ public class GlowBallEntity extends ProjectileItemEntity implements IRendersAsIt
         if (id == 3) {
             int numParticles = 5;
             for (int i = 0; i < numParticles; ++i) {
-                this.world
-                    .addParticle(makeParticle(), this.getPosX(), this.getPosY(), this.getPosZ(),
-                        ((double) this.rand.nextFloat() - 0.5D) * 0.08D,
-                        ((double) this.rand.nextFloat() - 0.1D) * 0.08D,
-                        ((double) this.rand.nextFloat() - 0.5D) * 0.08D);
+                this.level
+                    .addParticle(makeParticle(), this.getX(), this.getY(), this.getZ(),
+                        ((double) this.random.nextFloat() - 0.5D) * 0.08D,
+                        ((double) this.random.nextFloat() - 0.1D) * 0.08D,
+                        ((double) this.random.nextFloat() - 0.5D) * 0.08D);
             }
         }
     }
 
     @Override
-    protected void onImpact(RayTraceResult result) {
-        super.onImpact(result);
-        if (!this.world.isRemote) {
-            this.world.setEntityState(this, (byte) 3);
+    protected void onHit(HitResult p_37260_) {
+        super.onHit(p_37260_);
+        if (!this.level.isClientSide()) {
+            this.level.broadcastEntityEvent(this, (byte) 3);
             this.playSound(soundEvent, 0.8f, 0.8f);
-            this.remove();
+//            this.remove();
+            this.setRemoved(RemovalReason.DISCARDED);
         }
-
     }
 
     @Override
@@ -130,9 +124,11 @@ public class GlowBallEntity extends ProjectileItemEntity implements IRendersAsIt
         return false;
     }
 
-    @Override
-    public IPacket<?> createSpawnPacket() {
-        return NetworkHooks.getEntitySpawningPacket(this);
-    }
+//    @Override
+//    public IPacket<?> createSpawnPacket() {
+//        return NetworkHooks.getEntitySpawningPacket(this);
+//    }
+
+
 
 }

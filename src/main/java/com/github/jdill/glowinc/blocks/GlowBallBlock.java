@@ -4,38 +4,38 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
 import java.util.Map;
 import javax.annotation.Nullable;
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.Blocks;
-import net.minecraft.block.IWaterLoggable;
-import net.minecraft.block.SoundType;
-import net.minecraft.block.material.Material;
-import net.minecraft.fluid.FluidState;
-import net.minecraft.fluid.Fluids;
-import net.minecraft.item.BlockItemUseContext;
-import net.minecraft.state.BooleanProperty;
-import net.minecraft.state.DirectionProperty;
-import net.minecraft.state.StateContainer;
-import net.minecraft.state.properties.BlockStateProperties;
-import net.minecraft.util.Direction;
-import net.minecraft.util.Mirror;
-import net.minecraft.util.Rotation;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.shapes.ISelectionContext;
-import net.minecraft.util.math.shapes.VoxelShape;
-import net.minecraft.world.IBlockReader;
-import net.minecraft.world.IWorld;
-import net.minecraft.world.IWorldReader;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.world.item.context.BlockPlaceContext;
+import net.minecraft.world.level.BlockGetter;
+import net.minecraft.world.level.LevelAccessor;
+import net.minecraft.world.level.LevelReader;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.Mirror;
+import net.minecraft.world.level.block.Rotation;
+import net.minecraft.world.level.block.SimpleWaterloggedBlock;
+import net.minecraft.world.level.block.SoundType;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.StateDefinition.Builder;
+import net.minecraft.world.level.block.state.properties.BlockStateProperties;
+import net.minecraft.world.level.block.state.properties.BooleanProperty;
+import net.minecraft.world.level.block.state.properties.DirectionProperty;
+import net.minecraft.world.level.material.FluidState;
+import net.minecraft.world.level.material.Fluids;
+import net.minecraft.world.level.material.Material;
+import net.minecraft.world.phys.shapes.CollisionContext;
+import net.minecraft.world.phys.shapes.VoxelShape;
 
-public class GlowBallBlock extends Block implements IWaterLoggable {
+public class GlowBallBlock extends Block implements SimpleWaterloggedBlock {
 
     public static final BooleanProperty WATERLOGGED = BlockStateProperties.WATERLOGGED;
-    protected static final VoxelShape SHAPE_U = Block.makeCuboidShape(0.0D, 0.0D, 0.0D, 16.0D, 1.0D, 16.0D);
-    protected static final VoxelShape SHAPE_D = Block.makeCuboidShape(0.0D, 15.0D, 0.0D, 16.0D, 16.0D, 16.0D);
-    protected static final VoxelShape SHAPE_N = Block.makeCuboidShape(0.0D, 0.0D, 15.0D, 16.0D, 16.0D, 16.0D);
-    protected static final VoxelShape SHAPE_S = Block.makeCuboidShape(0.0D, 0.0D, 0.0D, 16.0D, 16.0D, 1.0D);
-    protected static final VoxelShape SHAPE_E = Block.makeCuboidShape(0.0D, 0.0D, 0.0D, 1.0D, 16.0D, 16.0D);
-    protected static final VoxelShape SHAPE_W = Block.makeCuboidShape(15.0D, 0.0D, 0.0D, 16.0D, 16.0D, 16.0D);
+    protected static final VoxelShape SHAPE_U = Block.box(0.0D, 0.0D, 0.0D, 16.0D, 1.0D, 16.0D);
+    protected static final VoxelShape SHAPE_D = Block.box(0.0D, 15.0D, 0.0D, 16.0D, 16.0D, 16.0D);
+    protected static final VoxelShape SHAPE_N = Block.box(0.0D, 0.0D, 15.0D, 16.0D, 16.0D, 16.0D);
+    protected static final VoxelShape SHAPE_S = Block.box(0.0D, 0.0D, 0.0D, 16.0D, 16.0D, 1.0D);
+    protected static final VoxelShape SHAPE_E = Block.box(0.0D, 0.0D, 0.0D, 1.0D, 16.0D, 16.0D);
+    protected static final VoxelShape SHAPE_W = Block.box(15.0D, 0.0D, 0.0D, 16.0D, 16.0D, 16.0D);
     private static final Map<Direction, VoxelShape> SHAPES = Maps.newEnumMap(ImmutableMap.<Direction, VoxelShape>builder()
         .put(Direction.NORTH, SHAPE_N)
         .put(Direction.SOUTH, SHAPE_S)
@@ -52,48 +52,48 @@ public class GlowBallBlock extends Block implements IWaterLoggable {
 
     //TODO make water loggable
     public GlowBallBlock() {
-        super(Block.Properties.create(Material.OCEAN_PLANT)
-            .zeroHardnessAndResistance()
-            .sound(SoundType.SLIME)
+        super(Block.Properties.of(Material.WATER_PLANT)
+            .instabreak()
+            .sound(SoundType.SLIME_BLOCK)
             .harvestLevel(0)
-            .doesNotBlockMovement()
-            .notSolid()
-            .setLightLevel((state) -> 14)
+            .noCollission()
+            .lightLevel((state) -> 14)
         );
-        this.setDefaultState(this.getStateContainer().getBaseState().with(WATERLOGGED, Boolean.FALSE));
+        this.registerDefaultState(this.defaultBlockState().setValue(WATERLOGGED, Boolean.FALSE));
     }
 
-    public VoxelShape getShape(BlockState state, IBlockReader worldIn, BlockPos pos, ISelectionContext context) {
-        return SHAPES.get(state.get(FACING));
+    @Override
+    public VoxelShape getShape(BlockState state, BlockGetter blockGetter, BlockPos pos, CollisionContext context) {
+        return SHAPES.get(state.getValue(FACING));
     }
 
     /**
      * Only allows the Glow Ball to be placed on the solid side of blocks, and only solid blocks.
      */
     @Override
-    public boolean isValidPosition(BlockState state, IWorldReader worldIn, BlockPos pos) {
-        Direction direction = state.get(FACING);
-        BlockPos blockpos = pos.offset(direction.getOpposite());
-        BlockState blockstate = worldIn.getBlockState(blockpos);
-        return blockstate.isSolidSide(worldIn, blockpos, direction);
+    public boolean canSurvive(BlockState state, LevelReader reader, BlockPos pos) {
+        Direction direction = state.getValue(FACING);
+        BlockPos blockpos = pos.relative(direction.getOpposite());
+        BlockState blockstate = reader.getBlockState(blockpos);
+        return blockstate.isFaceSturdy(reader, blockpos, direction);
     }
 
     /**
      * Searches for a valid wall to place on when placed on a block.
      */
     @Nullable
-    public BlockState getStateForPlacement(BlockItemUseContext context) {
-        BlockState blockstate = this.getDefaultState();
-        FluidState fluidState = context.getWorld().getFluidState(context.getPos());
-        IWorldReader iworldreader = context.getWorld();
-        BlockPos blockpos = context.getPos();
-        Direction[] adirection = context.getNearestLookingDirections();
+    public BlockState getStateForPlacement(BlockPlaceContext p_58126_) {
+        BlockState blockstate = this.defaultBlockState();
+        LevelReader levelreader = p_58126_.getLevel();
+        BlockPos blockpos = p_58126_.getClickedPos();
+        FluidState fluidState = levelreader.getFluidState(blockpos);
+        Direction[] adirection = p_58126_.getNearestLookingDirections();
 
         for(Direction direction : adirection) {
             Direction direction1 = direction.getOpposite();
-            blockstate = blockstate.with(FACING, direction1);
-            if (blockstate.isValidPosition(iworldreader, blockpos)) {
-                return blockstate.with(WATERLOGGED, fluidState.getFluid() == Fluids.WATER);
+            blockstate = blockstate.setValue(FACING, direction1);
+            if (blockstate.canSurvive(levelreader, blockpos)) {
+                return blockstate.setValue(WATERLOGGED, fluidState.getType() == Fluids.WATER);
             }
         }
 
@@ -101,33 +101,33 @@ public class GlowBallBlock extends Block implements IWaterLoggable {
     }
 
     /**
-     * When the block the Glow Ball is placed on is broken, also break the Tree Tap.
+     * When the block the Glow Ball is placed on is broken, also break the Glow Ball.
      */
     @Override
-    public BlockState updatePostPlacement(BlockState stateIn, Direction facing, BlockState facingState, IWorld worldIn, BlockPos currentPos, BlockPos facingPos) {
-        if (stateIn.get(WATERLOGGED)) {
-            worldIn.getPendingFluidTicks().scheduleTick(currentPos, Fluids.WATER, Fluids.WATER.getTickRate(worldIn));
+    public BlockState updateShape(BlockState stateIn, Direction facing, BlockState facingState,
+        LevelAccessor levelAccessor, BlockPos currentPos, BlockPos facingPos) {
+        if (stateIn.getValue(WATERLOGGED)) {
+            levelAccessor.getLiquidTicks().scheduleTick(currentPos, Fluids.WATER, Fluids.WATER.getTickDelay(levelAccessor));
         }
-        return facing.getOpposite() == stateIn.get(FACING) && !stateIn.isValidPosition(worldIn, currentPos) ? Blocks.AIR.getDefaultState() : stateIn;
+        return facing.getOpposite() == stateIn.getValue(FACING) && !stateIn.canSurvive(levelAccessor, currentPos) ? Blocks.AIR.defaultBlockState() : stateIn;
     }
 
     public FluidState getFluidState(BlockState state) {
-        return state.get(WATERLOGGED) ? Fluids.WATER.getStillFluidState(false) : super.getFluidState(state);
+        return state.getValue(WATERLOGGED) ? Fluids.WATER.getSource(false) : super.getFluidState(state);
     }
 
     @Override
     public BlockState rotate(BlockState state, Rotation rot) {
-        return state.with(FACING, rot.rotate(state.get(FACING)));
+        return state.setValue(FACING, rot.rotate(state.getValue(FACING)));
     }
 
     @Override
     public BlockState mirror(BlockState state, Mirror mirrorIn) {
-        return state.rotate(mirrorIn.toRotation(state.get(FACING)));
+        return state.rotate(mirrorIn.getRotation(state.getValue(FACING)));
     }
 
     @Override
-    protected void fillStateContainer(StateContainer.Builder<Block, BlockState> builder) {
+    protected void createBlockStateDefinition(Builder<Block, BlockState> builder) {
         builder.add(FACING, WATERLOGGED);
     }
-
 }

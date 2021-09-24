@@ -1,36 +1,32 @@
 buildscript {
     repositories {
         maven { url = 'https://files.minecraftforge.net/maven' }
+        maven { url = 'https://plugins.gradle.org/m2/' }
         jcenter()
         mavenCentral()
     }
     dependencies {
-        classpath group: 'net.minecraftforge.gradle', name: 'ForgeGradle', version: '3.+', changing: true
+        classpath group: 'net.minecraftforge.gradle', name: 'ForgeGradle', version: '5.1.+', changing: true
+        classpath 'gradle.plugin.com.matthewprenger:CurseGradle:1.4.0'
     }
 }
-
 apply plugin: 'net.minecraftforge.gradle'
+apply plugin: 'com.matthewprenger.cursegradle'
 
-version = modVersion
-group = modGroup
-archivesBaseName = modId
+version = "${mod_version}"
+group = "${mod_group}"
+archivesBaseName = "${mod_id}"
 
-sourceCompatibility = targetCompatibility = compileJava.sourceCompatibility = compileJava.targetCompatibility = '1.8'
+java.toolchain.languageVersion = JavaLanguageVersion.of(16)
 
 minecraft {
-    mappings channel: modMcpMappingsChannel, version: modMcpMappingsVersion
-    // makeObfSourceJar = false // an Srg named sources jar is made by default. uncomment this to disable.
-
-    // accessTransformer = file('src/main/resources/META-INF/accesstransformer.cfg')
+    mappings channel: 'official', version: version_mc
 
     runs {
         client {
             workingDirectory project.file('run')
 
-            // Recommended logging data for a userdev environment
             property 'forge.logging.markers', 'SCAN,REGISTRIES,REGISTRYDUMP'
-
-            // Recommended logging level for the console
             property 'forge.logging.console.level', 'debug'
 
             mods {
@@ -43,10 +39,7 @@ minecraft {
         server {
             workingDirectory project.file('run')
 
-            // Recommended logging data for a userdev environment
             property 'forge.logging.markers', 'SCAN,REGISTRIES,REGISTRYDUMP'
-
-            // Recommended logging level for the console
             property 'forge.logging.console.level', 'debug'
 
             mods {
@@ -59,14 +52,10 @@ minecraft {
         data {
             workingDirectory project.file('run')
 
-            // Recommended logging data for a userdev environment
             property 'forge.logging.markers', 'SCAN,REGISTRIES,REGISTRYDUMP'
-
-            // Recommended logging level for the console
             property 'forge.logging.console.level', 'debug'
 
-            // Specify the modid for data generation, where to output the resulting resource, and where to look for existing resources.
-            args '--mod', 'glowinc', '--all', '--output', file('src/generated/resources/'), '--existing', file('src/main/resources/')
+            args '--mod', 'glowinc', '--all', '--output', file('src/generated/resources/')
 
             mods {
                 glowinc {
@@ -77,47 +66,51 @@ minecraft {
     }
 }
 
-sourceSets.main.resources { srcDir 'src/generated/resources' }
+repositories {
+    maven {
+        url = "https://www.cursemaven.com"
+    }
+}
 
 dependencies {
-    minecraft 'net.minecraftforge:forge:' + mcVersion + '-' + forgeVersion
-
-    // compile against the JEI API but do not include it at runtime
-    compileOnly fg.deobf("mezz.jei:jei-${jeiMcVersion}:${jeiVersion}:api")
-    // at runtime, use the full JEI jar
-    runtimeOnly fg.deobf("mezz.jei:jei-${jeiMcVersion}:${jeiVersion}")
-
-    // Mekanism
-    compileOnly "mekanism:Mekanism:${mekanismVersion}:api"
-    runtimeOnly fg.deobf("mekanism:Mekanism:${mekanismVersion}")// core
+    minecraft "net.minecraftforge:forge:${version_forge}"
 }
 
-repositories {
-    maven { // Mantle, TCon, JEI
-        name 'DVS1 Maven FS'
-        url 'http://dvs1.progwml6.com/files/maven/'
-    }
-    maven { // CurseMaven
-        url "https://www.cursemaven.com"
-    }
-    maven { // Mekanism
-        url 'https://modmaven.dev/'
-    }
-}
-
-// Example for how to get properties into the manifest for reading by the runtime..
 jar {
     manifest {
         attributes([
-                "Specification-Title"     : "glowinc",
-                "Specification-Vendor"    : "J-Dill",
-                "Specification-Version"   : "1", // We are version 1 of ourselves
-                "Implementation-Title"    : project.name,
-                "Implementation-Version"  : project.version,
-                "Implementation-Vendor"   : "J-Dill",
-                "Implementation-Timestamp": new Date().format("yyyy-MM-dd'T'HH:mm:ssZ")
-        ])
+            "Specification-Title"     : "${mod_id}",
+            "Specification-Vendor"    : "${mod_author}",
+            "Specification-Version"   : "1",
+            "Implementation-Title"    : "${mod_id}",
+            "Implementation-Version"  : "${mod_version}",
+            "Implementation-Vendor"   : "${mod_author}",
+            "Implementation-Timestamp": new Date().format("yyyy-MM-dd'T'HH:mm:ssZ")],)
     }
 }
 
+task sourcesJar(type: Jar) {
+    archiveClassifier.set('sources')
+    from sourceSets.main.allJava
+}
+
+artifacts {
+    archives sourcesJar
+}
+
 jar.finalizedBy('reobfJar')
+
+//curseforge {
+//    apiKey = findProperty('curseKey') ?: 0
+//
+//    project {
+//        id = "${curse_id}"
+//        releaseType = "${curse_release}"
+//        changelogType = 'markdown'
+//        changelog = file('CHANGELOG.md')
+//        addArtifact(sourcesJar)
+//        "${curse_versions}".split(',').each {
+//            addGameVersion "${it}"
+//        }
+//    }
+//}

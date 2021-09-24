@@ -1,12 +1,11 @@
 package com.github.jdill.glowinc.items;
 
 import com.github.jdill.glowinc.Registry;
-import javax.annotation.Nullable;
-import net.minecraft.item.BucketItem;
-import net.minecraft.item.ItemGroup;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
-import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.world.item.BucketItem;
+import net.minecraft.world.item.CreativeModeTab;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 import net.minecraftforge.common.capabilities.ICapabilityProvider;
 import net.minecraftforge.fluids.capability.wrappers.FluidBucketWrapper;
 
@@ -17,12 +16,12 @@ public class GlowInkBucketItem extends BucketItem {
     public GlowInkBucketItem() {
         super(
                 Registry.GLOW_INK_FLUID,
-                new Properties().containerItem(Items.BUCKET).maxStackSize(1).group(ItemGroup.MISC)
+                new Properties().craftRemainder(Items.BUCKET).stacksTo(1).tab(CreativeModeTab.TAB_MISC)
         );
     }
 
     @Override
-    public ICapabilityProvider initCapabilities(ItemStack stack, @Nullable CompoundNBT nbt) {
+    public ICapabilityProvider initCapabilities(ItemStack stack, CompoundTag nbt) {
         return new FluidBucketWrapper(stack);
     }
 }
