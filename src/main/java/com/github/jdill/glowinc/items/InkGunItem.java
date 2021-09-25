@@ -36,7 +36,7 @@ public class InkGunItem extends Item {
     public static final String ID = "ink_gun";
 
     private static final int INK_GUN_CAPACITY = 10 * FluidAttributes.BUCKET_VOLUME;
-    private static final int INK_USE_AMOUNT = 250;
+    private static final int INK_USE_AMOUNT = 100;
 
     public InkGunItem() {
         super(new Properties().stacksTo(1).tab(CreativeModeTab.TAB_MISC).setNoRepair());
@@ -58,7 +58,11 @@ public class InkGunItem extends Item {
     @Override
     public double getDurabilityForDisplay(ItemStack stack) {
         Optional<FluidStack> fluidContained = FluidUtil.getFluidContained(stack);
-        return 0;
+        if (fluidContained.isPresent()) {
+            int currentAmount = fluidContained.get().getAmount();
+            return ((double) (INK_GUN_CAPACITY - currentAmount) / (double) INK_GUN_CAPACITY);
+        }
+        return 1;
     }
 
     @Override
@@ -89,16 +93,21 @@ public class InkGunItem extends Item {
         if(fs.isPresent()) {
             FluidStack fluidStack = fs.get();
             if (fluidStack.getFluid() != null && fluidStack.getAmount() >= INK_USE_AMOUNT) {
-                level.playSound(null, player.getX(), player.getY(), player.getZ(), SoundEvents.SNOWBALL_THROW,
+                // Play shoot sound
+                level.playSound(null, player.getX(), player.getY(), player.getZ(), SoundEvents.SLIME_SQUISH,
                         SoundSource.NEUTRAL, 0.5F, 0.4F / (level.getRandom().nextFloat() * 0.4F + 0.8F)
                 );
+
+                // Spawn entity
                 if (!level.isClientSide()) {
                     GlowBallEntity glowBallEntity = new GlowBallEntity(player, level);
                     glowBallEntity.shootFromRotation(player, player.getXRot(), player.getYRot(), 0.0F, 1.5F, 1.0F);
                     level.addFreshEntity(glowBallEntity);
                 }
-                fluidStack.getOrCreateTag().put("Fluid", fluidStack.writeToNBT(new CompoundTag()));
-                fluidStack.shrink(INK_USE_AMOUNT);
+
+                // Drain ink from Ink Gun
+                LazyOptional<IFluidHandlerItem> maybeHandler = itemStack.getCapability(CapabilityFluidHandler.FLUID_HANDLER_ITEM_CAPABILITY);
+                maybeHandler.ifPresent((fluidHandler) -> fluidHandler.drain(INK_USE_AMOUNT, IFluidHandler.FluidAction.EXECUTE));
             } else if (fluidStack.hasTag()) {
                 CompoundTag tag = fluidStack.getOrCreateTag();
                 tag.remove("Fluid");
