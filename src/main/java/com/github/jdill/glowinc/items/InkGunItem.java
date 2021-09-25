@@ -1,10 +1,12 @@
 package com.github.jdill.glowinc.items;
 
+import com.github.jdill.glowinc.Registry;
 import com.github.jdill.glowinc.entity.projectile.GlowBallEntity;
+import com.github.jdill.glowinc.fluids.InkGunFluidHandler;
+import net.minecraft.core.NonNullList;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.TextComponent;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.InteractionHand;
@@ -15,7 +17,6 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.material.Fluid;
 import net.minecraftforge.common.capabilities.ICapabilityProvider;
 import net.minecraftforge.common.util.LazyOptional;
 import net.minecraftforge.fluids.FluidAttributes;
@@ -24,9 +25,8 @@ import net.minecraftforge.fluids.FluidUtil;
 import net.minecraftforge.fluids.capability.CapabilityFluidHandler;
 import net.minecraftforge.fluids.capability.IFluidHandler;
 import net.minecraftforge.fluids.capability.IFluidHandlerItem;
-import net.minecraftforge.fluids.capability.templates.FluidHandlerItemStack;
-import net.minecraftforge.registries.ForgeRegistries;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.List;
 import java.util.Optional;
@@ -39,7 +39,7 @@ public class InkGunItem extends Item {
     private static final int INK_USE_AMOUNT = 250;
 
     public InkGunItem() {
-        super(new Properties().stacksTo(1).tab(CreativeModeTab.TAB_MISC));
+        super(new Properties().stacksTo(1).tab(CreativeModeTab.TAB_MISC).setNoRepair());
     }
 
     @Override
@@ -57,56 +57,29 @@ public class InkGunItem extends Item {
 
     @Override
     public double getDurabilityForDisplay(ItemStack stack) {
+        Optional<FluidStack> fluidContained = FluidUtil.getFluidContained(stack);
         return 0;
     }
 
-    public int getCapacity(ItemStack stack) {
-        final LazyOptional<IFluidHandlerItem> cap = stack.getCapability(CapabilityFluidHandler.FLUID_HANDLER_ITEM_CAPABILITY);
-
-        if (cap.isPresent()) {
-            final IFluidHandler fluidHandler = cap.orElseThrow(NullPointerException::new);
-            if (stack.hasTag() && stack.getTag().contains("BigBuckets")) {
-                // Handling for old-style NBT
-                final CompoundTag tag = stack.getTagElement("BigBuckets");
-                fixNBT(tag, fluidHandler, stack);
-            }
-            return fluidHandler.getTankCapacity(0);
-        }
-        return 0;
-    }
-
-    public int getFullness(ItemStack stack) {
-        final LazyOptional<IFluidHandlerItem> cap = stack.getCapability(CapabilityFluidHandler.FLUID_HANDLER_ITEM_CAPABILITY);
-
-        if (cap.isPresent()) {
-            final FluidHandlerItemStack fluidHandler = (FluidHandlerItemStack) cap.orElseThrow(NullPointerException::new);
-            if (stack.hasTag() && stack.getTag().contains("BigBuckets")) {
-                // Handling for old-style NBT
-                final CompoundTag tag = stack.getTagElement("BigBuckets");
-                fixNBT(tag, fluidHandler, stack);
-            }
-            return fluidHandler.getFluid().getAmount();
-        }
-        return 0;
-    }
-
-    private void fixNBT(CompoundTag tag, IFluidHandler fluidHandler, ItemStack stack) {
-        final Fluid oldFluid = ForgeRegistries.FLUIDS.getValue(new ResourceLocation(tag.getString("Fluid")));
-        final int oldCapacity = tag.getInt("Capacity");
-        final int oldFullness = tag.getInt("Fullness");
-
-//        fluidHandler.setTankCapacity(oldCapacity * FluidAttributes.BUCKET_VOLUME);
-
-        if (oldFluid == null) {
-            stack.removeTagKey("BigBuckets");
+    @Override
+    public void fillItemCategory(CreativeModeTab tab, NonNullList<ItemStack> subItems) {
+        // Creates an empty version of the Ink Gun
+        super.fillItemCategory(tab, subItems);
+        if (!allowdedIn(tab)) {
             return;
         }
 
-        final FluidStack fluidStack = new FluidStack(oldFluid, oldFullness);
-
-        fluidHandler.drain(Integer.MAX_VALUE, IFluidHandler.FluidAction.EXECUTE);
-        fluidHandler.fill(fluidStack, IFluidHandler.FluidAction.EXECUTE);
-        stack.removeTagKey("BigBuckets");
+        // Creates a full version of the Ink Gun
+        FluidStack fluidStack = new FluidStack(Registry.GLOW_INK_FLUID.get(), INK_GUN_CAPACITY);
+        ItemStack itemStack = new ItemStack(this);
+        if (CapabilityFluidHandler.FLUID_HANDLER_ITEM_CAPABILITY != null) {
+            LazyOptional<IFluidHandlerItem> maybeHandler = itemStack.getCapability(CapabilityFluidHandler.FLUID_HANDLER_ITEM_CAPABILITY);
+            maybeHandler.ifPresent((fluidHandler) -> {
+                fluidHandler.fill(fluidStack, IFluidHandler.FluidAction.EXECUTE);
+                ItemStack filledStack = fluidHandler.getContainer();
+                subItems.add(filledStack);
+            });
+        }
     }
 
     @Override
@@ -138,11 +111,7 @@ public class InkGunItem extends Item {
     }
 
     @Override
-    public ICapabilityProvider initCapabilities(ItemStack stack, CompoundTag nbt) {
-        if(!stack.isEmpty()) {
-            return new FluidHandlerItemStack(stack, INK_GUN_CAPACITY);
-        }
-        return null;
+    public ICapabilityProvider initCapabilities(@Nonnull ItemStack stack, @Nullable CompoundTag nbt) {
+        return new InkGunFluidHandler(stack, INK_GUN_CAPACITY);
     }
-
 }
