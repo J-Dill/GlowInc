@@ -43,7 +43,7 @@ public class InkGunItem extends Item {
     }
 
     @Override
-    public void appendHoverText(ItemStack itemStack, @Nullable Level level, List<Component> textList, TooltipFlag flag) {
+    public void appendHoverText(@Nonnull ItemStack itemStack, @Nullable Level level, @Nonnull List<Component> textList, @Nonnull TooltipFlag flag) {
         if(CapabilityFluidHandler.FLUID_HANDLER_ITEM_CAPABILITY != null) {
             Optional<FluidStack> fsCap = FluidUtil.getFluidContained(itemStack);
             fsCap.ifPresent(fs -> textList.add(new TextComponent("A thing")));
@@ -66,7 +66,7 @@ public class InkGunItem extends Item {
     }
 
     @Override
-    public void fillItemCategory(CreativeModeTab tab, NonNullList<ItemStack> subItems) {
+    public void fillItemCategory(@Nonnull CreativeModeTab tab, @Nonnull NonNullList<ItemStack> subItems) {
         // Creates an empty version of the Ink Gun
         super.fillItemCategory(tab, subItems);
         if (!allowdedIn(tab)) {
@@ -86,8 +86,9 @@ public class InkGunItem extends Item {
         }
     }
 
+    @Nonnull
     @Override
-    public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand hand) {
+    public InteractionResultHolder<ItemStack> use(@Nonnull Level level, Player player, @Nonnull InteractionHand hand) {
         ItemStack itemStack = player.getItemInHand(hand);
         Optional<FluidStack> fs = FluidUtil.getFluidContained(itemStack);
         if(fs.isPresent()) {
