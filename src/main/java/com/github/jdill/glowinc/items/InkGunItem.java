@@ -7,6 +7,7 @@ import net.minecraft.core.NonNullList;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.TextComponent;
+import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.InteractionHand;
@@ -30,6 +31,7 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class InkGunItem extends Item {
 
@@ -37,16 +39,20 @@ public class InkGunItem extends Item {
 
     private static final int INK_GUN_CAPACITY = 10 * FluidAttributes.BUCKET_VOLUME;
     private static final int INK_USE_AMOUNT = 100;
+    private static final SoundEvent SHOOT_SOUND = SoundEvents.SLIME_ATTACK;
 
     public InkGunItem() {
-        super(new Properties().stacksTo(1).tab(CreativeModeTab.TAB_MISC).setNoRepair());
+        super(new Properties().stacksTo(1).tab(CreativeModeTab.TAB_COMBAT).setNoRepair());
     }
 
     @Override
     public void appendHoverText(@Nonnull ItemStack itemStack, @Nullable Level level, @Nonnull List<Component> textList, @Nonnull TooltipFlag flag) {
         if(CapabilityFluidHandler.FLUID_HANDLER_ITEM_CAPABILITY != null) {
             Optional<FluidStack> fsCap = FluidUtil.getFluidContained(itemStack);
-            fsCap.ifPresent(fs -> textList.add(new TextComponent("A thing")));
+            AtomicInteger amount = new AtomicInteger();
+            fsCap.ifPresent(fs -> amount.set(fs.getAmount()));
+            String amountMsg = "Ink: " + amount + "/" + INK_GUN_CAPACITY;
+            textList.add(new TextComponent(amountMsg));
         }
     }
 
@@ -95,7 +101,7 @@ public class InkGunItem extends Item {
             FluidStack fluidStack = fs.get();
             if (fluidStack.getFluid() != null && fluidStack.getAmount() >= INK_USE_AMOUNT) {
                 // Play shoot sound
-                level.playSound(null, player.getX(), player.getY(), player.getZ(), SoundEvents.SLIME_SQUISH,
+                level.playSound(null, player.getX(), player.getY(), player.getZ(), SHOOT_SOUND,
                         SoundSource.NEUTRAL, 0.5F, 0.4F / (level.getRandom().nextFloat() * 0.4F + 0.8F)
                 );
 
