@@ -56,20 +56,20 @@ public class InkGunItem extends Item {
         }
     }
 
-    @Override
-    public boolean showDurabilityBar(ItemStack stack) {
-        return true;
-    }
-
-    @Override
-    public double getDurabilityForDisplay(ItemStack stack) {
-        Optional<FluidStack> fluidContained = FluidUtil.getFluidContained(stack);
-        if (fluidContained.isPresent()) {
-            int currentAmount = fluidContained.get().getAmount();
-            return ((double) (INK_GUN_CAPACITY - currentAmount) / (double) INK_GUN_CAPACITY);
-        }
-        return 1;
-    }
+//    @Override
+//    public boolean showDurabilityBar(ItemStack stack) {
+//        return true;
+//    }
+//
+//    @Override
+//    public double getDurabilityForDisplay(ItemStack stack) {
+//        Optional<FluidStack> fluidContained = FluidUtil.getFluidContained(stack);
+//        if (fluidContained.isPresent()) {
+//            int currentAmount = fluidContained.get().getAmount();
+//            return ((double) (INK_GUN_CAPACITY - currentAmount) / (double) INK_GUN_CAPACITY);
+//        }
+//        return 1;
+//    }
 
     @Override
     public void fillItemCategory(@Nonnull CreativeModeTab tab, @Nonnull NonNullList<ItemStack> subItems) {

@@ -3,6 +3,7 @@ package com.github.jdill.glowinc.blocks;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
 import java.util.Map;
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -28,7 +29,9 @@ import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
 
 public class GlowBallBlock extends Block implements SimpleWaterloggedBlock {
+    public static final String ID = "glow_ball";
 
+    private static final DirectionProperty FACING = BlockStateProperties.FACING;
     public static final BooleanProperty WATERLOGGED = BlockStateProperties.WATERLOGGED;
     protected static final VoxelShape SHAPE_U = Block.box(0.0D, 0.0D, 0.0D, 16.0D, 1.0D, 16.0D);
     protected static final VoxelShape SHAPE_D = Block.box(0.0D, 15.0D, 0.0D, 16.0D, 16.0D, 16.0D);
@@ -46,22 +49,17 @@ public class GlowBallBlock extends Block implements SimpleWaterloggedBlock {
         .build()
     );
 
-    private static final DirectionProperty FACING = BlockStateProperties.FACING;
-
-    public static final String ID = "glow_ball";
-
-    //TODO make water loggable
     public GlowBallBlock() {
         super(Block.Properties.of(Material.WATER_PLANT)
             .instabreak()
             .sound(SoundType.SLIME_BLOCK)
-            .harvestLevel(0)
             .noCollission()
-            .lightLevel((state) -> 14)
+            .lightLevel(state -> state.getValue(WATERLOGGED) ? 15 : 14) // 15 if in water, 14 otherwise
         );
         this.registerDefaultState(this.defaultBlockState().setValue(WATERLOGGED, Boolean.FALSE));
     }
 
+    @Nonnull
     @Override
     public VoxelShape getShape(BlockState state, BlockGetter blockGetter, BlockPos pos, CollisionContext context) {
         return SHAPES.get(state.getValue(FACING));
@@ -107,20 +105,23 @@ public class GlowBallBlock extends Block implements SimpleWaterloggedBlock {
     public BlockState updateShape(BlockState stateIn, Direction facing, BlockState facingState,
         LevelAccessor levelAccessor, BlockPos currentPos, BlockPos facingPos) {
         if (stateIn.getValue(WATERLOGGED)) {
-            levelAccessor.getLiquidTicks().scheduleTick(currentPos, Fluids.WATER, Fluids.WATER.getTickDelay(levelAccessor));
+            levelAccessor.scheduleTick(currentPos, Fluids.WATER, Fluids.WATER.getTickDelay(levelAccessor));
         }
         return facing.getOpposite() == stateIn.getValue(FACING) && !stateIn.canSurvive(levelAccessor, currentPos) ? Blocks.AIR.defaultBlockState() : stateIn;
     }
 
+    @Nonnull
     public FluidState getFluidState(BlockState state) {
         return state.getValue(WATERLOGGED) ? Fluids.WATER.getSource(false) : super.getFluidState(state);
     }
 
+    @Nonnull
     @Override
     public BlockState rotate(BlockState state, Rotation rot) {
         return state.setValue(FACING, rot.rotate(state.getValue(FACING)));
     }
 
+    @Nonnull
     @Override
     public BlockState mirror(BlockState state, Mirror mirrorIn) {
         return state.rotate(mirrorIn.getRotation(state.getValue(FACING)));
