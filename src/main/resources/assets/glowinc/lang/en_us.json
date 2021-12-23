@@ -1,7 +1,4 @@
 {
   "block.glowinc.glow_ball": "Glow Ball",
-  "entity.glowinc.glow_ball_entity": "Glow Ball",
-  "fluid.glowinc.glow_ink_fluid_still": "Glow Ink",
-  "fluid.glowinc.glow_ink_fluid_flowing": "Glow Ink",
-  "item.glowinc.glow_ink_bucket_item": "Glow Ink Bucket"
+  "entity.glowinc.glow_ball_entity": "Glow Ball"
 }

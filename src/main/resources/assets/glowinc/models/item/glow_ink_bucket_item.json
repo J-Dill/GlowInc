@@ -1,5 +1,0 @@
-{
-  "parent": "forge:item/bucket",
-  "loader": "forge:bucket",
-  "fluid": "glowinc:glow_ink_fluid_still"
-}
