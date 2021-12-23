@@ -5,7 +5,7 @@ license = "MIT"
 modId = "glowinc"
 version = "${file.jarVersion}"
 displayName = "Glow Inc."
-authors = "J-Dill"
+authors = "JDill"
 description = '''
 Glow Inc. is all about giving more uses to the glow ink sacs products by glow squids, along with providing other ink-related fun.
 '''
