@@ -2,14 +2,14 @@
   "type": "minecraft:crafting_shapeless",
   "ingredients": [
     {
-      "item": "minecraft:ink_sac"
+      "item": "minecraft:glow_ink_sac"
     },
     {
-      "item": "minecraft:ink_sac"
+      "item": "minecraft:glow_ink_sac"
     }
   ],
   "result": {
     "item": "glowinc:glow_ball",
-    "count": 4
+    "count": 8
   }
 }
