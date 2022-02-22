@@ -1,10 +1,34 @@
 {
   "variants": {
-    "facing=up": { "model": "glowinc:block/glow_ball" },
-    "facing=down": { "model": "glowinc:block/glow_ball", "x": 180 },
-    "facing=north": { "model": "glowinc:block/glow_ball", "x": 90 },
-    "facing=south": { "model": "glowinc:block/glow_ball", "y": 180, "x": 90 },
-    "facing=east": { "model": "glowinc:block/glow_ball", "x": 90 ,"y": 90},
-    "facing=west": { "model": "glowinc:block/glow_ball", "x": 90, "y": -90 }
+    "facing=up": [
+      { "model": "glowinc:block/glow_ball1" },
+      { "model": "glowinc:block/glow_ball2" },
+      { "model": "glowinc:block/glow_ball3" }
+    ],
+    "facing=down": [
+      { "model": "glowinc:block/glow_ball1", "x": 180 },
+      { "model": "glowinc:block/glow_ball2", "x": 180 },
+      { "model": "glowinc:block/glow_ball3", "x": 180 }
+    ],
+    "facing=north": [
+      { "model": "glowinc:block/glow_ball1", "x": 90 },
+      { "model": "glowinc:block/glow_ball2", "x": 90 },
+      { "model": "glowinc:block/glow_ball3", "x": 90 }
+    ],
+    "facing=south": [
+      { "model": "glowinc:block/glow_ball1", "y": 180, "x": 90 },
+      { "model": "glowinc:block/glow_ball2", "y": 180, "x": 90 },
+      { "model": "glowinc:block/glow_ball3", "y": 180, "x": 90 }
+    ],
+    "facing=east": [
+      { "model": "glowinc:block/glow_ball1", "y": 90, "x": 90 },
+      { "model": "glowinc:block/glow_ball2", "y": 90, "x": 90 },
+      { "model": "glowinc:block/glow_ball3", "y": 90, "x": 90 }
+    ],
+    "facing=west": [
+      { "model": "glowinc:block/glow_ball1", "y": 90, "x": -90 },
+      { "model": "glowinc:block/glow_ball2", "y": 90, "x": -90 },
+      { "model": "glowinc:block/glow_ball3", "y": 90, "x": -90 }
+    ]
   }
 }
