@@ -1,6 +1,9 @@
 package com.github.jdill.glowinc;
 
+import com.github.jdill.glowinc.client.ClientSetup;
+import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.eventbus.api.IEventBus;
+import net.minecraftforge.fml.DistExecutor;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 
@@ -15,7 +18,7 @@ public class GlowInc {
         Registry.ITEMS.register(modEventBus);
         Registry.ENTITIES.register(modEventBus);
 
-//        DistExecutor.safeRunWhenOn(Dist.CLIENT, () -> ClientSetup::initEarly);
+        DistExecutor.safeRunWhenOn(Dist.CLIENT, () -> ClientSetup::initEarly);
     }
 
 }
