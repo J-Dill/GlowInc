@@ -3,32 +3,44 @@
     "facing=up": [
       { "model": "glowinc:block/glow_ball1" },
       { "model": "glowinc:block/glow_ball2" },
-      { "model": "glowinc:block/glow_ball3" }
+      { "model": "glowinc:block/glow_ball3" },
+      { "model": "glowinc:block/glow_ball4" },
+      { "model": "glowinc:block/glow_ball5" }
     ],
     "facing=down": [
       { "model": "glowinc:block/glow_ball1", "x": 180 },
       { "model": "glowinc:block/glow_ball2", "x": 180 },
-      { "model": "glowinc:block/glow_ball3", "x": 180 }
+      { "model": "glowinc:block/glow_ball3", "x": 180 },
+      { "model": "glowinc:block/glow_ball4", "x": 180 },
+      { "model": "glowinc:block/glow_ball5", "x": 180 }
     ],
     "facing=north": [
       { "model": "glowinc:block/glow_ball1", "x": 90 },
       { "model": "glowinc:block/glow_ball2", "x": 90 },
-      { "model": "glowinc:block/glow_ball3", "x": 90 }
+      { "model": "glowinc:block/glow_ball3", "x": 90 },
+      { "model": "glowinc:block/glow_ball4", "x": 90 },
+      { "model": "glowinc:block/glow_ball5", "x": 90 }
     ],
     "facing=south": [
       { "model": "glowinc:block/glow_ball1", "y": 180, "x": 90 },
       { "model": "glowinc:block/glow_ball2", "y": 180, "x": 90 },
-      { "model": "glowinc:block/glow_ball3", "y": 180, "x": 90 }
+      { "model": "glowinc:block/glow_ball3", "y": 180, "x": 90 },
+      { "model": "glowinc:block/glow_ball4", "y": 180, "x": 90 },
+      { "model": "glowinc:block/glow_ball5", "y": 180, "x": 90 }
     ],
     "facing=east": [
       { "model": "glowinc:block/glow_ball1", "y": 90, "x": 90 },
       { "model": "glowinc:block/glow_ball2", "y": 90, "x": 90 },
-      { "model": "glowinc:block/glow_ball3", "y": 90, "x": 90 }
+      { "model": "glowinc:block/glow_ball3", "y": 90, "x": 90 },
+      { "model": "glowinc:block/glow_ball4", "y": 90, "x": 90 },
+      { "model": "glowinc:block/glow_ball5", "y": 90, "x": 90 }
     ],
     "facing=west": [
       { "model": "glowinc:block/glow_ball1", "y": 90, "x": -90 },
       { "model": "glowinc:block/glow_ball2", "y": 90, "x": -90 },
-      { "model": "glowinc:block/glow_ball3", "y": 90, "x": -90 }
+      { "model": "glowinc:block/glow_ball3", "y": 90, "x": -90 },
+      { "model": "glowinc:block/glow_ball4", "y": 90, "x": -90 },
+      { "model": "glowinc:block/glow_ball5", "y": 90, "x": -90 }
     ]
   }
 }
