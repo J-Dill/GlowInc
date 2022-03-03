@@ -1,5 +1,5 @@
 modLoader = "javafml"
-loaderVersion = "[39,)"
+loaderVersion = "[40,)"
 license = "MIT"
 [[mods]]
 modId = "glowinc"
@@ -12,7 +12,7 @@ Glow Inc. is all about giving more uses to the glow ink sacs products by glow sq
 [[dependencies.glowinc]]
     modId = "forge"
     mandatory = true
-    versionRange = "[39,)"
+    versionRange = "[40,)"
     ordering = "NONE"
     side = "BOTH"
 [[dependencies.glowinc]]
