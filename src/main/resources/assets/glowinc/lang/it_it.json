@@ -1,6 +1,7 @@
 {
   "block.glowinc.glow_ball": "Palla luminescente",
   "entity.glowinc.glow_ball_entity": "Palla luminescente",
+  "item.glowinc.pure_glow_bottle": "Bottiglia di puro bagliore",
   "fluid.glowinc.glow_ink_fluid_still": "Inchiostro luminescente",
   "fluid.glowinc.glow_ink_fluid_flowing": "Inchiostro luminescente",
   "item.glowinc.glow_ink_bucket_item": "Secchio d'inchiostro luminescente"
