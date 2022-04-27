@@ -1,0 +1,7 @@
+{
+  "replace": false,
+  "values": [
+    "glowinc:glow_ink_fluid_still",
+    "glowinc:glow_ink_fluid_flowing"
+  ]
+}

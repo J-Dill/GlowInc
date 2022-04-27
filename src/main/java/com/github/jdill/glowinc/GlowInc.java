@@ -22,6 +22,7 @@ public class GlowInc {
         IEventBus modEventBus = FMLJavaModLoadingContext.get().getModEventBus();
         Registry.BLOCKS.register(modEventBus);
         Registry.ITEMS.register(modEventBus);
+        Registry.FLUIDS.register(modEventBus);
         Registry.ENTITIES.register(modEventBus);
 
         DistExecutor.safeRunWhenOn(Dist.CLIENT, () -> ClientSetup::initEarly);
