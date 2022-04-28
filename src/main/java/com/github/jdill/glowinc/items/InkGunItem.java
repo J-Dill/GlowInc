@@ -10,13 +10,11 @@ import net.minecraft.network.chat.TextComponent;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
+import net.minecraft.util.Mth;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.CreativeModeTab;
-import net.minecraft.world.item.Item;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.TooltipFlag;
+import net.minecraft.world.item.*;
 import net.minecraft.world.level.Level;
 import net.minecraftforge.common.capabilities.ICapabilityProvider;
 import net.minecraftforge.common.util.LazyOptional;
@@ -31,6 +29,7 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.List;
 import java.util.Optional;
+import java.util.Random;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class InkGunItem extends Item {
@@ -56,20 +55,35 @@ public class InkGunItem extends Item {
         }
     }
 
-//    @Override
-//    public boolean showDurabilityBar(ItemStack stack) {
-//        return true;
-//    }
-//
-//    @Override
-//    public double getDurabilityForDisplay(ItemStack stack) {
-//        Optional<FluidStack> fluidContained = FluidUtil.getFluidContained(stack);
-//        if (fluidContained.isPresent()) {
-//            int currentAmount = fluidContained.get().getAmount();
-//            return ((double) (INK_GUN_CAPACITY - currentAmount) / (double) INK_GUN_CAPACITY);
-//        }
-//        return 1;
-//    }
+    @Override
+    public boolean isBarVisible(@Nonnull ItemStack stack) {
+        return true;
+    }
+
+    @Override
+    public UseAnim getUseAnimation(ItemStack p_41452_) {
+        return UseAnim.BOW;
+    }
+
+    @Override
+    public int getBarWidth(@Nonnull ItemStack stack) {
+        Optional<FluidStack> fluidContained = FluidUtil.getFluidContained(stack);
+        if (fluidContained.isPresent()) {
+            int currentAmount = fluidContained.get().getAmount();
+            return Math.min(13 * currentAmount / INK_GUN_CAPACITY, 13);
+        }
+        return 0;
+    }
+
+    @Override
+    public int getBarColor(ItemStack stack) {
+        Optional<FluidStack> fluidContained = FluidUtil.getFluidContained(stack);
+        if (fluidContained.isPresent()) {
+            int currentAmount = fluidContained.get().getAmount();
+            return Mth.hsvToRgb(Math.max(0.0F, (float) currentAmount / (float) INK_GUN_CAPACITY) / 3.0F, 1.0F, 1.0F);
+        }
+        return super.getBarColor(stack);
+    }
 
     @Override
     public void fillItemCategory(@Nonnull CreativeModeTab tab, @Nonnull NonNullList<ItemStack> subItems) {
@@ -115,6 +129,7 @@ public class InkGunItem extends Item {
                 // Drain ink from Ink Gun
                 LazyOptional<IFluidHandlerItem> maybeHandler = itemStack.getCapability(CapabilityFluidHandler.FLUID_HANDLER_ITEM_CAPABILITY);
                 maybeHandler.ifPresent((fluidHandler) -> fluidHandler.drain(INK_USE_AMOUNT, IFluidHandler.FluidAction.EXECUTE));
+                itemStack.hurt(INK_USE_AMOUNT, new Random(), null);
             } else if (fluidStack.hasTag()) {
                 CompoundTag tag = fluidStack.getOrCreateTag();
                 tag.remove("Fluid");
