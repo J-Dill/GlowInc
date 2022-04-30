@@ -64,7 +64,7 @@ public class InkGunItem extends Item {
 
     @Override
     public int getUseDuration(@Nonnull ItemStack stack) {
-        return 5000;
+        return 20;
     }
 
     @Override
@@ -149,7 +149,7 @@ public class InkGunItem extends Item {
                 // Spawn entity
                 if (!level.isClientSide()) {
                     GlowBallEntity glowBallEntity = new GlowBallEntity(player, level);
-                    glowBallEntity.shootFromRotation(player, player.getXRot(), player.getYRot(), 0.0F, 1.5F, 1.0F);
+                    glowBallEntity.shootFromRotation(player, player.getXRot(), player.getYRot(), 0.0F, 2.0F, 1.0F);
                     level.addFreshEntity(glowBallEntity);
                 }
 
