@@ -13,6 +13,7 @@ import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.Mth;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResultHolder;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.*;
 import net.minecraft.world.level.Level;
@@ -55,14 +56,25 @@ public class InkGunItem extends Item {
         }
     }
 
+    @Nonnull
     @Override
-    public boolean isBarVisible(@Nonnull ItemStack stack) {
-        return true;
+    public UseAnim getUseAnimation(@Nonnull ItemStack stack) {
+        return UseAnim.NONE;
     }
 
     @Override
-    public UseAnim getUseAnimation(ItemStack p_41452_) {
-        return UseAnim.BOW;
+    public int getUseDuration(@Nonnull ItemStack stack) {
+        return 5000;
+    }
+
+    @Override
+    public boolean shouldCauseReequipAnimation(ItemStack oldStack, ItemStack newStack, boolean slotChanged) {
+        return false;
+    }
+
+    @Override
+    public boolean canContinueUsing(ItemStack oldStack, ItemStack newStack) {
+        return true;
     }
 
     @Override
@@ -76,7 +88,12 @@ public class InkGunItem extends Item {
     }
 
     @Override
-    public int getBarColor(ItemStack stack) {
+    public boolean isBarVisible(@Nonnull ItemStack stack) {
+        return true;
+    }
+
+    @Override
+    public int getBarColor(@Nonnull ItemStack stack) {
         Optional<FluidStack> fluidContained = FluidUtil.getFluidContained(stack);
         if (fluidContained.isPresent()) {
             int currentAmount = fluidContained.get().getAmount();
@@ -111,10 +128,20 @@ public class InkGunItem extends Item {
     public InteractionResultHolder<ItemStack> use(@Nonnull Level level, Player player, @Nonnull InteractionHand hand) {
         ItemStack itemStack = player.getItemInHand(hand);
         Optional<FluidStack> fs = FluidUtil.getFluidContained(itemStack);
-        if(fs.isPresent()) {
+        if(fs.isPresent() && !player.isUsingItem()) {
+            player.startUsingItem(hand);
+        }
+        return InteractionResultHolder.pass(itemStack);
+    }
+
+    @Override
+    public void onUsingTick(ItemStack stack, LivingEntity player, int count) {
+        Optional<FluidStack> fs = FluidUtil.getFluidContained(stack);
+        if(fs.isPresent() && player instanceof Player && !((Player) player).getCooldowns().isOnCooldown(stack.getItem())) {
             FluidStack fluidStack = fs.get();
             if (fluidStack.getFluid() != null && fluidStack.getAmount() >= INK_USE_AMOUNT) {
                 // Play shoot sound
+                Level level = player.getLevel();
                 level.playSound(null, player.getX(), player.getY(), player.getZ(), SHOOT_SOUND,
                         SoundSource.NEUTRAL, 0.5F, 0.4F / (level.getRandom().nextFloat() * 0.4F + 0.8F)
                 );
@@ -127,9 +154,10 @@ public class InkGunItem extends Item {
                 }
 
                 // Drain ink from Ink Gun
-                LazyOptional<IFluidHandlerItem> maybeHandler = itemStack.getCapability(CapabilityFluidHandler.FLUID_HANDLER_ITEM_CAPABILITY);
+                LazyOptional<IFluidHandlerItem> maybeHandler = stack.getCapability(CapabilityFluidHandler.FLUID_HANDLER_ITEM_CAPABILITY);
                 maybeHandler.ifPresent((fluidHandler) -> fluidHandler.drain(INK_USE_AMOUNT, IFluidHandler.FluidAction.EXECUTE));
-                itemStack.hurt(INK_USE_AMOUNT, new Random(), null);
+                stack.hurt(INK_USE_AMOUNT, new Random(), null);
+                ((Player) player).getCooldowns().addCooldown(this, 10);
             } else if (fluidStack.hasTag()) {
                 CompoundTag tag = fluidStack.getOrCreateTag();
                 tag.remove("Fluid");
@@ -138,7 +166,6 @@ public class InkGunItem extends Item {
                 }
             }
         }
-        return InteractionResultHolder.sidedSuccess(itemStack, level.isClientSide());
     }
 
     @Override
