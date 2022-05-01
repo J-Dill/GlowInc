@@ -3,6 +3,13 @@ package com.github.jdill.glowinc.blocks;
 import com.github.jdill.glowinc.Config;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
+
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
@@ -110,6 +117,12 @@ public class GlowBallBlock extends Block implements SimpleWaterloggedBlock {
             serverLevel.setBlockAndUpdate(blockPos, blockState);
         }
 
+    }
+
+    @Nonnull
+    @Override
+    public List<ItemStack> getDrops(@Nonnull BlockState state, @Nonnull LootContext.Builder builder) {
+        return Collections.emptyList();
     }
 
     @Nonnull

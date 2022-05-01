@@ -50,6 +50,7 @@ public class InkGunRefillRecipe extends CustomRecipe {
                 if (gun.isEmpty()) {
                     gun = itemstack;
                 } else {
+                    // Found another Ink Gun in the grid.
                     return false;
                 }
             } else if (!itemstack.isEmpty()) {
@@ -58,7 +59,7 @@ public class InkGunRefillRecipe extends CustomRecipe {
                         ink++;
                         break;
                     } else {
-                        // Unknown item in crafting grid.
+                        // Unknown item in the grid.
                         return false;
                     }
                 }
