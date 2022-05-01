@@ -70,6 +70,9 @@ minecraft {
 repositories {
     maven {
         url = "https://www.cursemaven.com"
+        content {
+            includeGroup "curse.maven"
+        }
     }
     maven {
         // JEI
@@ -84,6 +87,10 @@ dependencies {
     // JEI
 //    compileOnly fg.deobf("mezz.jei:jei-${version_mc}:${version_jei}:api")
 //    runtimeOnly fg.deobf("mezz.jei:jei-${version_mc}:${version_jei}")
+
+
+    // Configured
+    implementation fg.deobf("curse.maven:configured-457570:3721946")
 }
 
 def replaceResources = tasks.register("replaceResources", Copy) {

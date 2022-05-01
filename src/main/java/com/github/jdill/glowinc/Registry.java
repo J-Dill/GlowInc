@@ -5,6 +5,7 @@ import com.github.jdill.glowinc.blocks.GlowInkFluidBlock;
 import com.github.jdill.glowinc.entity.projectile.GlowBallEntity;
 import com.github.jdill.glowinc.fluids.GlowInkFluid;
 import com.github.jdill.glowinc.items.*;
+import com.github.jdill.glowinc.recipes.InkGunRefillRecipe;
 import net.minecraft.client.renderer.entity.ThrownItemRenderer;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.MobCategory;
@@ -13,6 +14,8 @@ import net.minecraft.world.item.Items;
 import net.minecraft.world.item.alchemy.PotionUtils;
 import net.minecraft.world.item.alchemy.Potions;
 import net.minecraft.world.item.crafting.Ingredient;
+import net.minecraft.world.item.crafting.RecipeSerializer;
+import net.minecraft.world.item.crafting.SimpleRecipeSerializer;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.LiquidBlock;
@@ -37,6 +40,7 @@ public class Registry {
     public static final DeferredRegister<Item> ITEMS = DeferredRegister.create(ForgeRegistries.ITEMS, GlowInc.MODID);
     public static final DeferredRegister<Fluid> FLUIDS = DeferredRegister.create(ForgeRegistries.FLUIDS, GlowInc.MODID);
     public static final DeferredRegister<EntityType<?>> ENTITIES = DeferredRegister.create(ForgeRegistries.ENTITIES, GlowInc.MODID);
+    public static final DeferredRegister<RecipeSerializer<?>> RECIPES = DeferredRegister.create(ForgeRegistries.RECIPE_SERIALIZERS, GlowInc.MODID);
 
     //===============
     // Blocks
@@ -71,6 +75,13 @@ public class Registry {
                 .setTrackingRange(4)
                 .setShouldReceiveVelocityUpdates(true)
                 .build(GlowBallEntity.ID));
+
+    //===============
+    // Recipes
+    //===============
+    public static final RegistryObject<RecipeSerializer<InkGunRefillRecipe>> INK_GUN_REFILL = RECIPES.register(
+            "ink_gun_refill", InkGunRefillRecipe.Serializer::new
+    );
 
     @SubscribeEvent
     @OnlyIn(Dist.CLIENT)

@@ -1,0 +1,10 @@
+{
+  "type": "glowinc:ink_gun_refill",
+  "repairable": "glowinc:ink_gun",
+  "material": [
+    {
+      "item": "glowinc:pure_glow_bottle"
+    }
+  ],
+  "ratio": 10
+}

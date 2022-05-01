@@ -24,6 +24,7 @@ public class GlowInc {
         Registry.ITEMS.register(modEventBus);
         Registry.FLUIDS.register(modEventBus);
         Registry.ENTITIES.register(modEventBus);
+        Registry.RECIPES.register(modEventBus);
 
         DistExecutor.safeRunWhenOn(Dist.CLIENT, () -> ClientSetup::initEarly);
     }

@@ -14,14 +14,17 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 
+import javax.annotation.Nonnull;
+
 public class GlowBallItem extends BlockItem {
 
     public GlowBallItem() {
-        super(Registry.GLOW_BALL_BLOCK.get(), new Item.Properties().tab(CreativeModeTab.TAB_MISC));
+        super(Registry.GLOW_BALL_BLOCK.get(), new Item.Properties().tab(CreativeModeTab.TAB_MISC).stacksTo(16));
     }
 
+    @Nonnull
     @Override
-    public InteractionResultHolder<ItemStack> use(Level level, Player playerIn, InteractionHand handIn) {
+    public InteractionResultHolder<ItemStack> use(Level level, Player playerIn, @Nonnull InteractionHand handIn) {
         ItemStack itemstack = playerIn.getItemInHand(handIn);
         level.playSound(null, playerIn.getX(), playerIn.getY(), playerIn.getZ(), SoundEvents.SNOWBALL_THROW,
                 SoundSource.NEUTRAL, 0.5F, 0.4F / (level.getRandom().nextFloat() * 0.4F + 0.8F)

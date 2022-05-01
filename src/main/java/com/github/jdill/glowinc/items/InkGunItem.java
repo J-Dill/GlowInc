@@ -30,14 +30,13 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.List;
 import java.util.Optional;
-import java.util.Random;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class InkGunItem extends Item {
 
     public static final String ID = "ink_gun";
 
-    private static final int INK_GUN_CAPACITY = 10 * FluidAttributes.BUCKET_VOLUME;
+    private static final int INK_GUN_CAPACITY = 5 * FluidAttributes.BUCKET_VOLUME;
     private static final int INK_USE_AMOUNT = 100;
     private static final SoundEvent SHOOT_SOUND = SoundEvents.SLIME_ATTACK;
 
@@ -123,6 +122,25 @@ public class InkGunItem extends Item {
         }
     }
 
+    @Override
+    public int getMaxDamage(ItemStack stack) {
+        return INK_GUN_CAPACITY;
+    }
+
+    @Override
+    public int getDamage(ItemStack stack) {
+        Optional<FluidStack> fluidStack = FluidUtil.getFluidContained(stack);
+        return INK_GUN_CAPACITY - fluidStack.map(FluidStack::getAmount).orElse(0);
+    }
+
+    @Override
+    public void setDamage(ItemStack stack, int damage) {
+        LazyOptional<IFluidHandlerItem> fluidHandler = FluidUtil.getFluidHandler(stack);
+        fluidHandler.ifPresent(
+                (e) -> e.fill(new FluidStack(Registry.GLOW_INK_FLUID.get(), INK_GUN_CAPACITY - damage), IFluidHandler.FluidAction.EXECUTE)
+        );
+    }
+
     @Nonnull
     @Override
     public InteractionResultHolder<ItemStack> use(@Nonnull Level level, Player player, @Nonnull InteractionHand hand) {
@@ -156,8 +174,8 @@ public class InkGunItem extends Item {
 
                     if (!player.isCreative()) {
                         // Drain ink from Ink Gun
-                        LazyOptional<IFluidHandlerItem> maybeHandler = stack.getCapability(CapabilityFluidHandler.FLUID_HANDLER_ITEM_CAPABILITY);
-                        maybeHandler.ifPresent((fluidHandler) -> fluidHandler.drain(INK_USE_AMOUNT, IFluidHandler.FluidAction.EXECUTE));
+                        LazyOptional<IFluidHandlerItem> handler = FluidUtil.getFluidHandler(stack);
+                        handler.ifPresent((fluidHandler) -> fluidHandler.drain(INK_USE_AMOUNT, IFluidHandler.FluidAction.EXECUTE));
                     }
                     player.getCooldowns().addCooldown(this, 10);
                 } else if (fluidStack.hasTag()) {
