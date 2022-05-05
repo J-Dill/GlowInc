@@ -1,6 +1,7 @@
 {
   "block.glowinc.glow_ball": "Glow Ball",
   "entity.glowinc.glow_ball_entity": "Glow Ball",
+  "item.glowinc.ink_gun": "Ink Gun",
   "item.glowinc.pure_glow_bottle": "Pure Glow Bottle",
   "fluid.glowinc.glow_ink_fluid_still": "Glow Ink",
   "fluid.glowinc.glow_ink_fluid_flowing": "Glow Ink",
