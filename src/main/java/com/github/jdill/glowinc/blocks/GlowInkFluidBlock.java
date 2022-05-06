@@ -17,7 +17,10 @@ public class GlowInkFluidBlock extends LiquidBlock implements IFluidBlock {
 
     // TODO: better configure fluid in world (aka all of this class)
     public GlowInkFluidBlock() {
-        super(Registry.GLOW_INK_FLUID_FLOWING, Properties.of(Material.WATER));
+        super(Registry.GLOW_INK_FLUID_FLOWING,
+            Properties.of(Material.WATER)
+                .noLootTable()
+        );
     }
 
     @Override

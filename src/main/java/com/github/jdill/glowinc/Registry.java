@@ -1,15 +1,19 @@
 package com.github.jdill.glowinc;
 
+import com.github.jdill.glowinc.blockentity.SqueezerBlockEntity;
 import com.github.jdill.glowinc.blocks.GlowBallBlock;
 import com.github.jdill.glowinc.blocks.GlowInkFluidBlock;
+import com.github.jdill.glowinc.blocks.SqueezerBlock;
 import com.github.jdill.glowinc.entity.projectile.GlowBallEntity;
 import com.github.jdill.glowinc.fluids.GlowInkFluid;
 import com.github.jdill.glowinc.fluids.GlowInkFluidType;
+import com.github.jdill.glowinc.inventory.SqueezerMenu;
 import com.github.jdill.glowinc.items.*;
 import com.github.jdill.glowinc.recipes.InkGunRefillRecipe;
 import net.minecraft.client.renderer.entity.ThrownItemRenderer;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.MobCategory;
+import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.alchemy.PotionUtils;
@@ -18,12 +22,14 @@ import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.LiquidBlock;
+import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.client.event.EntityRenderersEvent;
 import net.minecraftforge.client.event.RegisterColorHandlersEvent;
 import net.minecraftforge.common.brewing.BrewingRecipeRegistry;
+import net.minecraftforge.common.extensions.IForgeMenuType;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fluids.FluidType;
 import net.minecraftforge.fluids.ForgeFlowingFluid;
@@ -37,6 +43,8 @@ import net.minecraftforge.registries.RegistryObject;
 public class Registry {
 
     public static final DeferredRegister<Block> BLOCKS = DeferredRegister.create(ForgeRegistries.BLOCKS, GlowInc.MODID);
+    public static final DeferredRegister<BlockEntityType<?>> BLOCK_ENTITIES = DeferredRegister.create(ForgeRegistries.BLOCK_ENTITY_TYPES, GlowInc.MODID);
+    public static final DeferredRegister<MenuType<?>> CONTAINERS = DeferredRegister.create(ForgeRegistries.MENU_TYPES, GlowInc.MODID);
     public static final DeferredRegister<Item> ITEMS = DeferredRegister.create(ForgeRegistries.ITEMS, GlowInc.MODID);
     public static final DeferredRegister<Fluid> FLUIDS = DeferredRegister.create(ForgeRegistries.FLUIDS, GlowInc.MODID);
     public static final DeferredRegister<FluidType> FLUID_TYPES = DeferredRegister.create(ForgeRegistries.Keys.FLUID_TYPES, GlowInc.MODID);
@@ -49,6 +57,22 @@ public class Registry {
     public static final RegistryObject<Block> GLOW_BALL_BLOCK = BLOCKS.register(GlowBallBlock.ID, GlowBallBlock::new);
     public static final RegistryObject<LiquidBlock> GLOW_INK_BLOCK = BLOCKS.register(
         GlowInkFluidBlock.ID, GlowInkFluidBlock::new);
+    public static final RegistryObject<Block> SQUEEZER_BLOCK = BLOCKS.register(SqueezerBlock.ID, SqueezerBlock::new);
+
+    //===============
+    // Block Entities
+    //===============
+    public static final RegistryObject<BlockEntityType<SqueezerBlockEntity>> SQUEEZER_BLOCK_ENTITY = BLOCK_ENTITIES.register(
+            SqueezerBlockEntity.ID, () -> BlockEntityType.Builder.of(SqueezerBlockEntity::new, SQUEEZER_BLOCK.get())
+                    .build(null)
+    );
+
+    //===============
+    // Containers
+    //===============
+    public static final RegistryObject<MenuType<SqueezerMenu>> SQUEEZER_MENU = CONTAINERS.register(
+            SqueezerMenu.ID, () -> IForgeMenuType.create(SqueezerMenu::new)
+    );
 
     //===============
     // Items
@@ -58,6 +82,7 @@ public class Registry {
 //    public static final RegistryObject<Item> GLOW_INK_BUCKET_ITEM = ITEMS.register(
 //            GlowInkBucketItem.ID, GlowInkBucketItem::new);
     public static final RegistryObject<Item> INK_GUN_ITEM = ITEMS.register(InkGunItem.ID, InkGunItem::new);
+    public static final RegistryObject<Item> SQUEEZER_ITEM = ITEMS.register(SqueezerItem.ID, SqueezerItem::new);
 
     //===============
     // Fluids
