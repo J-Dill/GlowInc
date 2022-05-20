@@ -4,13 +4,18 @@ import com.github.jdill.glowinc.blockentity.SqueezerBlockEntity;
 import com.github.jdill.glowinc.blocks.GlowBallBlock;
 import com.github.jdill.glowinc.blocks.GlowInkFluidBlock;
 import com.github.jdill.glowinc.blocks.SqueezerBlock;
+import com.github.jdill.glowinc.client.screens.SqueezerScreen;
 import com.github.jdill.glowinc.entity.projectile.GlowBallEntity;
 import com.github.jdill.glowinc.fluids.GlowInkFluid;
+import com.github.jdill.glowinc.inventory.SqueezerMenu;
 import com.github.jdill.glowinc.items.*;
 import com.github.jdill.glowinc.recipes.InkGunRefillRecipe;
+import net.minecraft.client.gui.screens.MenuScreens;
 import net.minecraft.client.renderer.entity.ThrownItemRenderer;
+import net.minecraft.world.MenuProvider;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.MobCategory;
+import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.alchemy.PotionUtils;
@@ -28,9 +33,11 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.client.event.ColorHandlerEvent;
 import net.minecraftforge.client.event.EntityRenderersEvent;
 import net.minecraftforge.common.brewing.BrewingRecipeRegistry;
+import net.minecraftforge.common.extensions.IForgeMenuType;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fluids.ForgeFlowingFluid;
 import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;
@@ -41,6 +48,7 @@ public class Registry {
 
     public static final DeferredRegister<Block> BLOCKS = DeferredRegister.create(ForgeRegistries.BLOCKS, GlowInc.MODID);
     public static final DeferredRegister<BlockEntityType<?>> BLOCK_ENTITIES = DeferredRegister.create(ForgeRegistries.BLOCK_ENTITIES, GlowInc.MODID);
+    public static final DeferredRegister<MenuType<?>> CONTAINERS = DeferredRegister.create(ForgeRegistries.CONTAINERS, GlowInc.MODID);
     public static final DeferredRegister<Item> ITEMS = DeferredRegister.create(ForgeRegistries.ITEMS, GlowInc.MODID);
     public static final DeferredRegister<Fluid> FLUIDS = DeferredRegister.create(ForgeRegistries.FLUIDS, GlowInc.MODID);
     public static final DeferredRegister<EntityType<?>> ENTITIES = DeferredRegister.create(ForgeRegistries.ENTITIES, GlowInc.MODID);
@@ -60,6 +68,13 @@ public class Registry {
     public static final RegistryObject<BlockEntityType<SqueezerBlockEntity>> SQUEEZER_BLOCK_ENTITY = BLOCK_ENTITIES.register(
             SqueezerBlockEntity.ID, () -> BlockEntityType.Builder.of(SqueezerBlockEntity::new, SQUEEZER_BLOCK.get())
                     .build(null)
+    );
+
+    //===============
+    // Containers
+    //===============
+    public static final RegistryObject<MenuType<SqueezerMenu>> SQUEEZER_MENU = CONTAINERS.register(
+            SqueezerMenu.ID, () -> IForgeMenuType.create(SqueezerMenu::new)
     );
 
     //===============
@@ -118,6 +133,12 @@ public class Registry {
                         PURE_GLOW_BOTTLE.get().getDefaultInstance()
                 )
         );
+    }
+
+    @SubscribeEvent
+    @OnlyIn(Dist.CLIENT)
+    public static void clientSetup(FMLClientSetupEvent event) {
+        MenuScreens.register(Registry.SQUEEZER_MENU.get(), SqueezerScreen::new);
     }
 
 }
