@@ -1,15 +1,15 @@
 package com.github.jdill.glowinc.blocks;
 
+import com.github.jdill.glowinc.Config;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
-import java.util.Map;
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.BlockGetter;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.block.*;
@@ -18,17 +18,31 @@ import net.minecraft.world.level.block.state.StateDefinition.Builder;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.world.level.block.state.properties.DirectionProperty;
+import net.minecraft.world.level.block.state.properties.IntegerProperty;
 import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.level.material.Fluids;
 import net.minecraft.world.level.material.Material;
+import net.minecraft.world.level.storage.loot.LootContext;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
+import net.minecraft.world.ticks.LevelTicks;
+
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.Random;
 
 public class GlowBallBlock extends Block implements SimpleWaterloggedBlock {
     public static final String ID = "glow_ball";
 
-    private static final DirectionProperty FACING = BlockStateProperties.FACING;
+    public static final int TICKS_IN_MINUTE = 1200;
+
+    public static final IntegerProperty AGE = IntegerProperty.create("age", 0, Config.GLOW_BALL_BLOCK_MINUTES.get());
+    public static final DirectionProperty FACING = BlockStateProperties.FACING;
     public static final BooleanProperty WATERLOGGED = BlockStateProperties.WATERLOGGED;
+
     protected static final VoxelShape SHAPE_U = Block.box(0.0D, 0.0D, 0.0D, 16.0D, 1.0D, 16.0D);
     protected static final VoxelShape SHAPE_D = Block.box(0.0D, 15.0D, 0.0D, 16.0D, 16.0D, 16.0D);
     protected static final VoxelShape SHAPE_N = Block.box(0.0D, 0.0D, 15.0D, 16.0D, 16.0D, 16.0D);
@@ -50,9 +64,57 @@ public class GlowBallBlock extends Block implements SimpleWaterloggedBlock {
             .instabreak()
             .sound(SoundType.SLIME_BLOCK)
             .noCollission()
-            .lightLevel(state -> state.getValue(WATERLOGGED) ? 15 : 14) // 15 if in water, 14 otherwise
+            .lightLevel(state -> state.getValue(WATERLOGGED) ? 15 : 10) // 15 if in water, 10 otherwise
+            .randomTicks()
         );
-        this.registerDefaultState(this.defaultBlockState().setValue(WATERLOGGED, Boolean.FALSE));
+        this.registerDefaultState(
+                this.defaultBlockState()
+                        .setValue(AGE, 0)
+                        .setValue(WATERLOGGED, Boolean.FALSE)
+        );
+    }
+
+    public void onPlace(BlockState blockState, Level level, BlockPos blockPos, BlockState blockState1, boolean flag) {
+        super.onPlace(blockState, level, blockPos, blockState1, flag);
+        level.scheduleTick(blockPos, this, TICKS_IN_MINUTE);
+    }
+
+    /*
+        Going and scheduling a tick for old Glow Ball Blocks that do not have any scheduled ticks.
+        This is for backwards compatibility with Glow Ball Blocks placed on v1.2.2 and before.
+     */
+    @Override
+    public void randomTick(BlockState blockState, ServerLevel level, BlockPos blockPos, Random random) {
+        LevelTicks<Block> blockTicks = level.getBlockTicks();
+        if (!blockTicks.hasScheduledTick(blockPos, this)) {
+            level.scheduleTick(blockPos, this, TICKS_IN_MINUTE);
+        }
+    }
+
+    @Override
+    public void tick(BlockState blockState, ServerLevel serverLevel, BlockPos blockPos, Random random) {
+        if (Config.GLOW_BALL_BLOCK_PERSISTENT.get()) {
+            // If Glow Ink splat is set to be persistent, don't do the tick logic.
+            serverLevel.scheduleTick(blockPos, this, TICKS_IN_MINUTE);
+            return;
+        }
+
+        int currentAge = blockState.getValue(AGE) + 1;
+        if (currentAge >= Config.GLOW_BALL_BLOCK_MINUTES.get()) {
+            // If we have reached max age, remove the block.
+            serverLevel.removeBlock(blockPos, true);
+        } else {
+            // Increment the age of the block through the block state.
+            blockState = blockState.setValue(AGE, currentAge);
+            serverLevel.setBlockAndUpdate(blockPos, blockState);
+        }
+
+    }
+
+    @Nonnull
+    @Override
+    public List<ItemStack> getDrops(@Nonnull BlockState state, @Nonnull LootContext.Builder builder) {
+        return Collections.emptyList();
     }
 
     @Nonnull
@@ -76,12 +138,12 @@ public class GlowBallBlock extends Block implements SimpleWaterloggedBlock {
      * Searches for a valid wall to place on when placed on a block.
      */
     @Nullable
-    public BlockState getStateForPlacement(BlockPlaceContext p_58126_) {
+    public BlockState getStateForPlacement(BlockPlaceContext context) {
         BlockState blockstate = this.defaultBlockState();
-        LevelReader levelreader = p_58126_.getLevel();
-        BlockPos blockpos = p_58126_.getClickedPos();
+        LevelReader levelreader = context.getLevel();
+        BlockPos blockpos = context.getClickedPos();
         FluidState fluidState = levelreader.getFluidState(blockpos);
-        Direction[] adirection = p_58126_.getNearestLookingDirections();
+        Direction[] adirection = context.getNearestLookingDirections();
 
         for(Direction direction : adirection) {
             Direction direction1 = direction.getOpposite();
@@ -125,6 +187,7 @@ public class GlowBallBlock extends Block implements SimpleWaterloggedBlock {
 
     @Override
     protected void createBlockStateDefinition(Builder<Block, BlockState> builder) {
-        builder.add(FACING, WATERLOGGED);
+        builder.add(AGE, FACING, WATERLOGGED);
     }
+
 }
