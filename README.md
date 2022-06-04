@@ -19,7 +19,7 @@ The default recipe for the Glow Ball returns 8 of them and requires two Glow Ink
 * Default: _false_
 
 `glowSplatMinutes` The number of minutes the Glow Ball splat will survive before disappearing. 
-* Default: _10_ minutes
+* Default: _20_ minutes
 * Range: _1 - 120_ minutes
 
 ### **Pure Glow Bottle**

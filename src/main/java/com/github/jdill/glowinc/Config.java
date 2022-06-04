@@ -23,7 +23,7 @@ public class Config {
 
         GLOW_BALL_BLOCK_MINUTES = COMMON_BUILDER.comment("Number of minutes the Glow Ball splat will last.",
                         "Ignored if glowSplatPersistent is to set to true.")
-            .defineInRange("glowSplatMinutes", 10, 1, 120);
+            .defineInRange("glowSplatMinutes", 20, 1, 120);
 
         COMMON_BUILDER.pop();
 
