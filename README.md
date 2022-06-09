@@ -5,7 +5,9 @@ Glow Inc. is all about giving more uses to the glow ink sacs products by glow sq
 
 ### **Glow Ball**
 #### Uses
-When right-clicked, the glow ball can be thrown to create a luminescent splat across a full surface it hits. The projectile ignores water, leaving it to be a great underwater exploration tool.
+When right-clicked, the glow ball can be thrown to create a luminescent splat across a full surface it hits. 
+
+The projectile ignores water and the splat it leaves behind is much brighter in water, making it a great underwater exploration tool.
 
 In addition, when the ball hits a living entity, it will add the Glowing effect to them.
 

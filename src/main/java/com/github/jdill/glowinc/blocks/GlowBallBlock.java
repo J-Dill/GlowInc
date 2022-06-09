@@ -6,6 +6,7 @@ import com.google.common.collect.Maps;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.BlockGetter;
@@ -32,7 +33,6 @@ import javax.annotation.Nullable;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import java.util.Random;
 
 public class GlowBallBlock extends Block implements SimpleWaterloggedBlock {
     public static final String ID = "glow_ball";
@@ -82,9 +82,10 @@ public class GlowBallBlock extends Block implements SimpleWaterloggedBlock {
     /*
         Going and scheduling a tick for old Glow Ball Blocks that do not have any scheduled ticks.
         This is for backwards compatibility with Glow Ball Blocks placed on v1.2.2 and before.
+        TODO eventually remove the random tick functionality.
      */
     @Override
-    public void randomTick(BlockState blockState, ServerLevel level, BlockPos blockPos, Random random) {
+    public void randomTick(BlockState blockState, ServerLevel level, BlockPos blockPos, RandomSource random) {
         LevelTicks<Block> blockTicks = level.getBlockTicks();
         if (!blockTicks.hasScheduledTick(blockPos, this)) {
             level.scheduleTick(blockPos, this, TICKS_IN_MINUTE);
@@ -92,7 +93,7 @@ public class GlowBallBlock extends Block implements SimpleWaterloggedBlock {
     }
 
     @Override
-    public void tick(BlockState blockState, ServerLevel serverLevel, BlockPos blockPos, Random random) {
+    public void tick(BlockState blockState, ServerLevel serverLevel, BlockPos blockPos, RandomSource random) {
         if (Config.GLOW_BALL_BLOCK_PERSISTENT.get()) {
             // If Glow Ink splat is set to be persistent, don't do the tick logic.
             serverLevel.scheduleTick(blockPos, this, TICKS_IN_MINUTE);

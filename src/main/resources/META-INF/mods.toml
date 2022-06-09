@@ -1,23 +1,26 @@
 modLoader = "javafml"
-loaderVersion = "[40,)"
-license = "MIT"
+loaderVersion = "${forge_version}"
+license = "MIT License"
+
 [[mods]]
-modId = "glowinc"
-version = "${file.jarVersion}"
-displayName = "Glow Inc."
-authors = "JDill"
+modId="${mod_id}"
+version="${version}"
+displayName="${mod_name}"
+credits="Big shoutout to computers, without you I would have no job."
+authors="${mod_author}"
 description = '''
 Glow Inc. is all about giving more uses to the glow ink sacs products by glow squids, along with providing other ink-related fun.
 '''
+
 [[dependencies.glowinc]]
     modId = "forge"
     mandatory = true
-    versionRange = "[40,)"
+    versionRange = "${forge_version}"
     ordering = "NONE"
     side = "BOTH"
 [[dependencies.glowinc]]
     modId = "minecraft"
     mandatory = true
-    versionRange = "[1.18,)"
+    versionRange = "${mc_version}"
     ordering = "NONE"
     side = "BOTH"
