@@ -83,6 +83,11 @@ public class SqueezerMenu extends RecipeBookMenu<Container> {
     }
 
     @Override
+    public ItemStack quickMoveStack(Player p_38941_, int p_38942_) {
+        return null;
+    }
+
+    @Override
     public boolean stillValid(Player p_38874_) {
         return false;
     }

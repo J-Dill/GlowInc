@@ -16,13 +16,15 @@ import net.minecraft.world.item.crafting.CustomRecipe;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.world.level.Level;
+import net.minecraftforge.common.crafting.conditions.ICondition;
 import net.minecraftforge.registries.ForgeRegistries;
-import net.minecraftforge.registries.ForgeRegistryEntry;
+import net.minecraftforge.registries.ForgeRegistry;
 
 import javax.annotation.Nonnull;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 public class InkGunRefillRecipe extends CustomRecipe {
 
@@ -107,10 +109,27 @@ public class InkGunRefillRecipe extends CustomRecipe {
         return Registry.INK_GUN_REFILL.get();
     }
 
-    public static class Serializer extends ForgeRegistryEntry<RecipeSerializer<?>> implements RecipeSerializer<InkGunRefillRecipe> {
+    public static class Serializer implements RecipeSerializer<InkGunRefillRecipe> {
         @Nonnull
         @Override
-        public InkGunRefillRecipe fromJson(@Nonnull ResourceLocation recipeId, @Nonnull JsonObject json) {
+        public InkGunRefillRecipe fromJson(@Nonnull ResourceLocation recipeId, @Nonnull JsonObject json, ICondition.IContext context) {
+            String group = GsonHelper.getAsString(json, "group", "");
+            String s = GsonHelper.getAsString(json, "repairable");
+            Item repairable = ForgeRegistries.ITEMS.getValue(new ResourceLocation(s));
+            if (repairable == null) {
+                throw new JsonSyntaxException("Unknown item '" + s + "'");
+            }
+            JsonArray materials = GsonHelper.getAsJsonArray(json, "material");
+            List<Ingredient> ingredients = new ArrayList<>(Collections.emptyList());
+            for (JsonElement material : materials) {
+                ingredients.add(Ingredient.fromJson(material));
+            }
+            int ratio = GsonHelper.getAsInt(json, "ratio");
+            return new InkGunRefillRecipe(recipeId, group, repairable, ingredients, ratio);
+        }
+
+        @Override
+        public InkGunRefillRecipe fromJson(ResourceLocation recipeId, JsonObject json) {
             String group = GsonHelper.getAsString(json, "group", "");
             String s = GsonHelper.getAsString(json, "repairable");
             Item repairable = ForgeRegistries.ITEMS.getValue(new ResourceLocation(s));

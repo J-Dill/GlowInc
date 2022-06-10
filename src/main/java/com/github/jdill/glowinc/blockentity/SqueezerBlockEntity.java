@@ -5,7 +5,6 @@ import com.github.jdill.glowinc.inventory.SqueezerMenu;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.NonNullList;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.world.ContainerHelper;
 import net.minecraft.world.MenuProvider;
 import net.minecraft.world.entity.player.Inventory;
@@ -30,7 +29,7 @@ public class SqueezerBlockEntity extends BaseContainerBlockEntity implements Men
     @Nonnull
     @Override
     protected Component getDefaultName() {
-        return new TranslatableComponent("container.squeezer");
+        return Component.translatable("container.squeezer");
     }
 
     @Nonnull

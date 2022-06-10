@@ -6,7 +6,6 @@ import com.github.jdill.glowinc.fluids.InkGunFluidHandler;
 import net.minecraft.core.NonNullList;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TextComponent;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
@@ -51,7 +50,7 @@ public class InkGunItem extends Item {
             AtomicInteger amount = new AtomicInteger();
             fsCap.ifPresent(fs -> amount.set(fs.getAmount()));
             String amountMsg = "Ink: " + amount + "/" + INK_GUN_CAPACITY;
-            textList.add(new TextComponent(amountMsg));
+            textList.add(Component.literal(amountMsg));
         }
     }
 
@@ -105,7 +104,7 @@ public class InkGunItem extends Item {
     public void fillItemCategory(@Nonnull CreativeModeTab tab, @Nonnull NonNullList<ItemStack> subItems) {
         // Creates an empty version of the Ink Gun
         super.fillItemCategory(tab, subItems);
-        if (!allowdedIn(tab)) {
+        if (!this.allowedIn(tab)) {
             return;
         }
 
