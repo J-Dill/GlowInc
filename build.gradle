@@ -3,7 +3,6 @@ buildscript {
         maven { url = 'https://maven.minecraftforge.net' }
         maven { url = 'https://files.minecraftforge.net/maven' }
         maven { url = 'https://plugins.gradle.org/m2/' }
-        jcenter()
         mavenCentral()
     }
     dependencies {
@@ -85,12 +84,12 @@ dependencies {
     minecraft "net.minecraftforge:forge:${version_mc}-${version_forge}"
 
     // JEI
-//    compileOnly fg.deobf("mezz.jei:jei-${version_mc}:${version_jei}:api")
-//    runtimeOnly fg.deobf("mezz.jei:jei-${version_mc}:${version_jei}")
+    compileOnly fg.deobf("mezz.jei:jei-${version_mc}-forge-api:${version_jei}")
+    runtimeOnly fg.deobf("mezz.jei:jei-${version_mc}-forge:${version_jei}")
 
 
     // Configured
-    implementation fg.deobf("curse.maven:configured-457570:3721946")
+    implementation fg.deobf("curse.maven:configured-457570:${version_conf}")
 }
 
 def replaceResources = tasks.register("replaceResources", Copy) {
@@ -137,17 +136,3 @@ artifacts {
 }
 
 jar.finalizedBy('reobfJar')
-
-curseforge {
-    apiKey = findProperty('curseForgeApiKey') ?: 0
-
-    project {
-        id = "${curse_id}"
-        releaseType = "${curse_release}"
-        changelogType = 'markdown'
-        changelog = file('CHANGELOG.md')
-        "${curse_versions}".split(',').each {
-            addGameVersion "${it}"
-        }
-    }
-}

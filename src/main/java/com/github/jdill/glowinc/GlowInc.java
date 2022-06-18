@@ -23,6 +23,7 @@ public class GlowInc {
         Registry.BLOCKS.register(modEventBus);
         Registry.ITEMS.register(modEventBus);
         Registry.FLUIDS.register(modEventBus);
+        Registry.FLUID_TYPES.register(modEventBus);
         Registry.ENTITIES.register(modEventBus);
         Registry.RECIPES.register(modEventBus);
 

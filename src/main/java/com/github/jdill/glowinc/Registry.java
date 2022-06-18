@@ -4,6 +4,7 @@ import com.github.jdill.glowinc.blocks.GlowBallBlock;
 import com.github.jdill.glowinc.blocks.GlowInkFluidBlock;
 import com.github.jdill.glowinc.entity.projectile.GlowBallEntity;
 import com.github.jdill.glowinc.fluids.GlowInkFluid;
+import com.github.jdill.glowinc.fluids.GlowInkFluidType;
 import com.github.jdill.glowinc.items.*;
 import com.github.jdill.glowinc.recipes.InkGunRefillRecipe;
 import net.minecraft.client.renderer.entity.ThrownItemRenderer;
@@ -15,9 +16,7 @@ import net.minecraft.world.item.alchemy.PotionUtils;
 import net.minecraft.world.item.alchemy.Potions;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.item.crafting.RecipeSerializer;
-import net.minecraft.world.item.crafting.SimpleRecipeSerializer;
 import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.LiquidBlock;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraftforge.api.distmarker.Dist;
@@ -26,6 +25,7 @@ import net.minecraftforge.client.event.ColorHandlerEvent;
 import net.minecraftforge.client.event.EntityRenderersEvent;
 import net.minecraftforge.common.brewing.BrewingRecipeRegistry;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraftforge.fluids.FluidType;
 import net.minecraftforge.fluids.ForgeFlowingFluid;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
@@ -39,6 +39,7 @@ public class Registry {
     public static final DeferredRegister<Block> BLOCKS = DeferredRegister.create(ForgeRegistries.BLOCKS, GlowInc.MODID);
     public static final DeferredRegister<Item> ITEMS = DeferredRegister.create(ForgeRegistries.ITEMS, GlowInc.MODID);
     public static final DeferredRegister<Fluid> FLUIDS = DeferredRegister.create(ForgeRegistries.FLUIDS, GlowInc.MODID);
+    public static final DeferredRegister<FluidType> FLUID_TYPES = DeferredRegister.create(ForgeRegistries.Keys.FLUID_TYPES, GlowInc.MODID);
     public static final DeferredRegister<EntityType<?>> ENTITIES = DeferredRegister.create(ForgeRegistries.ENTITIES, GlowInc.MODID);
     public static final DeferredRegister<RecipeSerializer<?>> RECIPES = DeferredRegister.create(ForgeRegistries.RECIPE_SERIALIZERS, GlowInc.MODID);
 
@@ -65,6 +66,12 @@ public class Registry {
             GlowInkFluid.Source.ID, GlowInkFluid.Source::new);
     public static final RegistryObject<ForgeFlowingFluid> GLOW_INK_FLUID_FLOWING = FLUIDS.register(
             GlowInkFluid.Flowing.ID, GlowInkFluid.Flowing::new);
+
+    //===============
+    // Fluid Types
+    //===============
+    public static final RegistryObject<FluidType> GLOW_INK_FLUID_TYPE = FLUID_TYPES.register(
+            GlowInkFluidType.ID, GlowInkFluidType::new);
 
     //===============
     // Entities

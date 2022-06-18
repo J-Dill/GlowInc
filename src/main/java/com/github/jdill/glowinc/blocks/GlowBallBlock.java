@@ -127,12 +127,6 @@ public class GlowBallBlock extends Block implements SimpleWaterloggedBlock {
 
     @Nonnull
     @Override
-    public List<ItemStack> getDrops(@Nonnull BlockState state, @Nonnull LootContext.Builder builder) {
-        return Collections.emptyList();
-    }
-
-    @Nonnull
-    @Override
     public VoxelShape getShape(BlockState state, BlockGetter blockGetter, BlockPos pos, CollisionContext context) {
         return SHAPES.get(state.getValue(FACING));
     }

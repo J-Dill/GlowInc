@@ -6,7 +6,6 @@ import com.github.jdill.glowinc.fluids.InkGunFluidHandler;
 import net.minecraft.core.NonNullList;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TextComponent;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
@@ -19,8 +18,8 @@ import net.minecraft.world.item.*;
 import net.minecraft.world.level.Level;
 import net.minecraftforge.common.capabilities.ICapabilityProvider;
 import net.minecraftforge.common.util.LazyOptional;
-import net.minecraftforge.fluids.FluidAttributes;
 import net.minecraftforge.fluids.FluidStack;
+import net.minecraftforge.fluids.FluidType;
 import net.minecraftforge.fluids.FluidUtil;
 import net.minecraftforge.fluids.capability.CapabilityFluidHandler;
 import net.minecraftforge.fluids.capability.IFluidHandler;
@@ -36,7 +35,7 @@ public class InkGunItem extends Item {
 
     public static final String ID = "ink_gun";
 
-    private static final int INK_GUN_CAPACITY = 5 * FluidAttributes.BUCKET_VOLUME;
+    private static final int INK_GUN_CAPACITY = 5 * FluidType.BUCKET_VOLUME;
     private static final int INK_USE_AMOUNT = 100;
     private static final SoundEvent SHOOT_SOUND = SoundEvents.SLIME_ATTACK;
 
@@ -51,7 +50,7 @@ public class InkGunItem extends Item {
             AtomicInteger amount = new AtomicInteger();
             fsCap.ifPresent(fs -> amount.set(fs.getAmount()));
             String amountMsg = "Ink: " + amount + "/" + INK_GUN_CAPACITY;
-            textList.add(new TextComponent(amountMsg));
+            textList.add(Component.translatable(amountMsg));
         }
     }
 
@@ -105,7 +104,7 @@ public class InkGunItem extends Item {
     public void fillItemCategory(@Nonnull CreativeModeTab tab, @Nonnull NonNullList<ItemStack> subItems) {
         // Creates an empty version of the Ink Gun
         super.fillItemCategory(tab, subItems);
-        if (!allowdedIn(tab)) {
+        if (!this.allowedIn(tab)) {
             return;
         }
 
