@@ -3,7 +3,9 @@ package com.github.jdill.glowinc.blockentity;
 import com.github.jdill.glowinc.Registry;
 import com.github.jdill.glowinc.inventory.SqueezerMenu;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.core.NonNullList;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.ContainerHelper;
 import net.minecraft.world.MenuProvider;
@@ -11,8 +13,12 @@ import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.entity.BaseContainerBlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraftforge.common.capabilities.Capability;
+import net.minecraftforge.common.util.LazyOptional;
+import org.jetbrains.annotations.Nullable;
 
 import javax.annotation.Nonnull;
 
@@ -50,8 +56,8 @@ public class SqueezerBlockEntity extends BaseContainerBlockEntity implements Men
                 return false;
             }
         }
-
-        return true;    }
+        return true;
+    }
 
     @Nonnull
     @Override
@@ -61,8 +67,8 @@ public class SqueezerBlockEntity extends BaseContainerBlockEntity implements Men
 
     @Nonnull
     @Override
-    public ItemStack removeItem(int p_18942_, int p_18943_) {
-        return ContainerHelper.removeItem(this.inventory, p_18942_, p_18943_);
+    public ItemStack removeItem(int slot, int number) {
+        return ContainerHelper.removeItem(this.inventory, slot, number);
     }
 
     @Nonnull
@@ -72,8 +78,14 @@ public class SqueezerBlockEntity extends BaseContainerBlockEntity implements Men
     }
 
     @Override
-    public void setItem(int p_18944_, @Nonnull ItemStack p_18945_) {
-        String la = "";
+    public void setItem(int slot, ItemStack itemStack) {
+        this.inventory.set(slot, itemStack);
+        this.setChanged();
+    }
+
+    @Override
+    public boolean canPlaceItem(int slot, ItemStack itemStack) {
+        return Items.GLOW_INK_SAC == itemStack.getItem();
     }
 
     @Override
@@ -88,5 +100,18 @@ public class SqueezerBlockEntity extends BaseContainerBlockEntity implements Men
     @Override
     public void clearContent() {
         this.inventory.clear();
+    }
+
+    @Override
+    protected void saveAdditional(CompoundTag tag) {
+        super.saveAdditional(tag);
+        ContainerHelper.saveAllItems(tag, this.inventory);
+    }
+
+    @Override
+    public void load(CompoundTag tag) {
+        super.load(tag);
+        this.inventory = NonNullList.withSize(this.getContainerSize(), ItemStack.EMPTY);
+        ContainerHelper.loadAllItems(tag, this.inventory);
     }
 }

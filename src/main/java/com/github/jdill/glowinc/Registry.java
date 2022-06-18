@@ -4,15 +4,12 @@ import com.github.jdill.glowinc.blockentity.SqueezerBlockEntity;
 import com.github.jdill.glowinc.blocks.GlowBallBlock;
 import com.github.jdill.glowinc.blocks.GlowInkFluidBlock;
 import com.github.jdill.glowinc.blocks.SqueezerBlock;
-import com.github.jdill.glowinc.client.screens.SqueezerScreen;
 import com.github.jdill.glowinc.entity.projectile.GlowBallEntity;
 import com.github.jdill.glowinc.fluids.GlowInkFluid;
 import com.github.jdill.glowinc.inventory.SqueezerMenu;
 import com.github.jdill.glowinc.items.*;
 import com.github.jdill.glowinc.recipes.InkGunRefillRecipe;
-import net.minecraft.client.gui.screens.MenuScreens;
 import net.minecraft.client.renderer.entity.ThrownItemRenderer;
-import net.minecraft.world.MenuProvider;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.MobCategory;
 import net.minecraft.world.inventory.MenuType;
@@ -22,9 +19,7 @@ import net.minecraft.world.item.alchemy.PotionUtils;
 import net.minecraft.world.item.alchemy.Potions;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.item.crafting.RecipeSerializer;
-import net.minecraft.world.item.crafting.SimpleRecipeSerializer;
 import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.LiquidBlock;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.material.Fluid;
@@ -37,7 +32,6 @@ import net.minecraftforge.common.extensions.IForgeMenuType;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fluids.ForgeFlowingFluid;
 import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;
@@ -133,12 +127,6 @@ public class Registry {
                         PURE_GLOW_BOTTLE.get().getDefaultInstance()
                 )
         );
-    }
-
-    @SubscribeEvent
-    @OnlyIn(Dist.CLIENT)
-    public static void clientSetup(FMLClientSetupEvent event) {
-        MenuScreens.register(Registry.SQUEEZER_MENU.get(), SqueezerScreen::new);
     }
 
 }
