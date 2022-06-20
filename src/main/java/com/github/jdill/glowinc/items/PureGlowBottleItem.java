@@ -10,7 +10,9 @@ public class PureGlowBottleItem extends BottleItem {
     public static final String ID = "pure_glow_bottle";
 
     public PureGlowBottleItem() {
-        super((new Item.Properties()).stacksTo(1).tab(CreativeModeTab.TAB_BREWING).craftRemainder(Items.GLASS_BOTTLE));
+        super((new Item.Properties()).stacksTo(16)
+                .tab(CreativeModeTab.TAB_BREWING)
+                .craftRemainder(Items.GLASS_BOTTLE));
     }
 
 }

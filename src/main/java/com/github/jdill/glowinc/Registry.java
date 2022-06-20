@@ -55,8 +55,8 @@ public class Registry {
     //===============
     public static final RegistryObject<Item> GLOW_BALL_ITEM = ITEMS.register(GlowBallBlock.ID, GlowBallItem::new);
     public static final RegistryObject<Item> PURE_GLOW_BOTTLE = ITEMS.register(PureGlowBottleItem.ID, PureGlowBottleItem::new);
-    public static final RegistryObject<Item> GLOW_INK_BUCKET_ITEM = ITEMS.register(
-            GlowInkBucketItem.ID, GlowInkBucketItem::new);
+//    public static final RegistryObject<Item> GLOW_INK_BUCKET_ITEM = ITEMS.register(
+//            GlowInkBucketItem.ID, GlowInkBucketItem::new);
     public static final RegistryObject<Item> INK_GUN_ITEM = ITEMS.register(InkGunItem.ID, InkGunItem::new);
 
     //===============

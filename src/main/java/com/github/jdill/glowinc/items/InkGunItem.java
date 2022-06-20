@@ -19,7 +19,6 @@ import net.minecraft.world.level.Level;
 import net.minecraftforge.common.capabilities.ICapabilityProvider;
 import net.minecraftforge.common.util.LazyOptional;
 import net.minecraftforge.fluids.FluidStack;
-import net.minecraftforge.fluids.FluidType;
 import net.minecraftforge.fluids.FluidUtil;
 import net.minecraftforge.fluids.capability.CapabilityFluidHandler;
 import net.minecraftforge.fluids.capability.IFluidHandler;
@@ -35,7 +34,7 @@ public class InkGunItem extends Item {
 
     public static final String ID = "ink_gun";
 
-    private static final int INK_GUN_CAPACITY = 5 * FluidType.BUCKET_VOLUME;
+    private static final int INK_GUN_CAPACITY = 6400;
     private static final int INK_USE_AMOUNT = 100;
     private static final SoundEvent SHOOT_SOUND = SoundEvents.SLIME_ATTACK;
 

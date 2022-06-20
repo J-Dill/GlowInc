@@ -7,7 +7,7 @@ public abstract class GlowInkFluid extends ForgeFlowingFluid {
 
     private static final Properties PROPERTIES = new Properties(
             Registry.GLOW_INK_FLUID_TYPE, Registry.GLOW_INK_FLUID, Registry.GLOW_INK_FLUID_FLOWING)
-        .bucket(Registry.GLOW_INK_BUCKET_ITEM)
+//        .bucket(Registry.GLOW_INK_BUCKET_ITEM)
         .block(Registry.GLOW_INK_BLOCK)
         .levelDecreasePerBlock(2)
         .tickRate(20);
