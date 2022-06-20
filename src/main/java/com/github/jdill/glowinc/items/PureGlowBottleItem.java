@@ -1,9 +1,12 @@
 package com.github.jdill.glowinc.items;
 
-import net.minecraft.world.item.BottleItem;
-import net.minecraft.world.item.CreativeModeTab;
-import net.minecraft.world.item.Item;
-import net.minecraft.world.item.Items;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResultHolder;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.*;
+import net.minecraft.world.level.Level;
+
+import javax.annotation.Nonnull;
 
 public class PureGlowBottleItem extends BottleItem {
 
@@ -15,4 +18,9 @@ public class PureGlowBottleItem extends BottleItem {
                 .craftRemainder(Items.GLASS_BOTTLE));
     }
 
+    @Nonnull
+    @Override
+    public InteractionResultHolder<ItemStack> use(@Nonnull Level level, Player player, @Nonnull InteractionHand hand) {
+        return InteractionResultHolder.fail(player.getItemInHand(hand));
+    }
 }
