@@ -18,13 +18,12 @@ import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.world.level.Level;
 import net.minecraftforge.common.crafting.conditions.ICondition;
 import net.minecraftforge.registries.ForgeRegistries;
-import net.minecraftforge.registries.ForgeRegistry;
 
 import javax.annotation.Nonnull;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
+import java.util.Optional;
 
 public class InkGunRefillRecipe extends CustomRecipe {
 
@@ -169,5 +168,10 @@ public class InkGunRefillRecipe extends CustomRecipe {
             buffer.writeVarInt(recipe.ratio);
         }
 
+    }
+
+    public static InkGunRefillRecipe getInstance(Level level) {
+        Optional<InkGunRefillRecipe> optionalRecipe = (Optional<InkGunRefillRecipe>) level.getRecipeManager().byKey(Registry.INK_GUN_REFILL.getId());
+        return optionalRecipe.orElseThrow(() -> new RuntimeException("Ink Gun Refill recipe is not registered correctly."));
     }
 }

@@ -3,6 +3,7 @@ package com.github.jdill.glowinc.items;
 import com.github.jdill.glowinc.Registry;
 import com.github.jdill.glowinc.entity.projectile.GlowBallEntity;
 import com.github.jdill.glowinc.fluids.InkGunFluidHandler;
+import com.github.jdill.glowinc.recipes.InkGunRefillRecipe;
 import net.minecraft.core.NonNullList;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
@@ -13,7 +14,10 @@ import net.minecraft.util.Mth;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.inventory.AbstractContainerMenu;
+import net.minecraft.world.inventory.CraftingContainer;
 import net.minecraft.world.item.*;
 import net.minecraft.world.level.Level;
 import net.minecraftforge.common.capabilities.ICapabilityProvider;
@@ -39,7 +43,7 @@ public class InkGunItem extends Item {
     private static final SoundEvent SHOOT_SOUND = SoundEvents.SLIME_ATTACK;
 
     public InkGunItem() {
-        super(new Properties().stacksTo(1).tab(CreativeModeTab.TAB_COMBAT).setNoRepair());
+        super(new Properties().stacksTo(1).tab(CreativeModeTab.TAB_TOOLS).setNoRepair());
     }
 
     @Override
@@ -49,7 +53,7 @@ public class InkGunItem extends Item {
             AtomicInteger amount = new AtomicInteger();
             fsCap.ifPresent(fs -> amount.set(fs.getAmount()));
             String amountMsg = "Ink: " + amount + "/" + INK_GUN_CAPACITY;
-            textList.add(Component.translatable(amountMsg));
+            textList.add(Component.literal(amountMsg));
         }
     }
 
@@ -101,13 +105,13 @@ public class InkGunItem extends Item {
 
     @Override
     public void fillItemCategory(@Nonnull CreativeModeTab tab, @Nonnull NonNullList<ItemStack> subItems) {
-        // Creates an empty version of the Ink Gun
+        // Creates an empty version of the Ink Gun.
         super.fillItemCategory(tab, subItems);
         if (!this.allowedIn(tab)) {
             return;
         }
 
-        // Creates a full version of the Ink Gun
+        // Creates a full version of the Ink Gun.
         FluidStack fluidStack = new FluidStack(Registry.GLOW_INK_FLUID.get(), INK_GUN_CAPACITY);
         ItemStack itemStack = new ItemStack(this);
         if (CapabilityFluidHandler.FLUID_HANDLER_ITEM_CAPABILITY != null) {
@@ -142,12 +146,50 @@ public class InkGunItem extends Item {
     @Nonnull
     @Override
     public InteractionResultHolder<ItemStack> use(@Nonnull Level level, Player player, @Nonnull InteractionHand hand) {
-        ItemStack itemStack = player.getItemInHand(hand);
-        Optional<FluidStack> fs = FluidUtil.getFluidContained(itemStack);
-        if(fs.isPresent() && !player.isUsingItem()) {
-            player.startUsingItem(hand);
+        ItemStack inkGun = player.getItemInHand(hand);
+        Optional<FluidStack> fs = FluidUtil.getFluidContained(inkGun);
+        if (!player.isUsingItem()) {
+            if (player.isShiftKeyDown()) {
+                // Player can refill Ink Gun by shift-clicking it with Pure Glow Bottle in their inventory.
+                Inventory inventory = player.getInventory();
+                int pureBottleSlot = inventory.findSlotMatchingItem(new ItemStack(Registry.PURE_GLOW_BOTTLE.get()));
+                if (pureBottleSlot >= 0) {
+                    ItemStack bottleStack = inventory.getItem(pureBottleSlot);
+                    InkGunRefillRecipe refillRecipe = InkGunRefillRecipe.getInstance(level);
+                    CraftingContainer container = getInkGunRefillContainer(inkGun, bottleStack);
+                    ItemStack filledGun = refillRecipe.assemble(container);
+                    player.setItemInHand(hand, filledGun);
+                    bottleStack.shrink(1);
+                }
+            } else if (fs.isPresent()) {
+                // If there is ink, shoot the gun.
+                player.startUsingItem(hand);
+            }
         }
-        return InteractionResultHolder.pass(itemStack);
+        return InteractionResultHolder.pass(inkGun);
+    }
+
+    /**
+     * Creating a fake crafting container to simulate filling the Ink Gun with one Pure Ink Bottle
+     * from the player's inventory.
+     * @param inkGun This item.
+     * @param bottleStack A stack of Pure Glow Bottles.
+     * @return A fake crafting container to fill the Ink Gun.
+     */
+    @Nonnull
+    private CraftingContainer getInkGunRefillContainer(ItemStack inkGun, ItemStack bottleStack) {
+        CraftingContainer container = new CraftingContainer(new AbstractContainerMenu(null, -1) {
+            public ItemStack quickMoveStack(Player player, int slot) {
+                return ItemStack.EMPTY;
+            }
+
+            public boolean stillValid(Player player) {
+                return false;
+            }
+        }, 2, 1);
+        container.setItem(0, inkGun);
+        container.setItem(1, bottleStack);
+        return container;
     }
 
     @Override
