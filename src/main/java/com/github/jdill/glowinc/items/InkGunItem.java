@@ -19,6 +19,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.CraftingContainer;
 import net.minecraft.world.item.*;
+import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.level.Level;
 import net.minecraftforge.common.capabilities.ICapabilityProvider;
 import net.minecraftforge.common.util.LazyOptional;
@@ -159,6 +160,15 @@ public class InkGunItem extends Item {
                     CraftingContainer container = getInkGunRefillContainer(inkGun, bottleStack);
                     ItemStack filledGun = refillRecipe.assemble(container);
                     player.setItemInHand(hand, filledGun);
+                    NonNullList<ItemStack> remainingItems = level.getRecipeManager().getRemainingItemsFor(RecipeType.CRAFTING, container, level);
+                    if (!remainingItems.isEmpty()) {
+                        for (ItemStack remainingItem : remainingItems) {
+                            if (!remainingItem.isEmpty()) {
+                                inventory.add(remainingItem);
+                            }
+                        }
+
+                    }
                     bottleStack.shrink(1);
                 }
             } else if (fs.isPresent()) {
