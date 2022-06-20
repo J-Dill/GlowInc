@@ -163,7 +163,35 @@ public class InkGunItem extends Item {
                 }
             } else if (fs.isPresent()) {
                 // If there is ink, shoot the gun.
-                player.startUsingItem(hand);
+                if (!player.getCooldowns().isOnCooldown(inkGun.getItem())) {
+                    FluidStack fluidStack = fs.get();
+                    if (fluidStack.getFluid() != null && fluidStack.getAmount() >= INK_USE_AMOUNT) {
+                        // Play shoot sound
+                        level.playSound(null, player.getX(), player.getY(), player.getZ(), SHOOT_SOUND,
+                                SoundSource.NEUTRAL, 0.5F, 0.4F / (level.getRandom().nextFloat() * 0.4F + 0.8F)
+                        );
+
+                        // Spawn Glow Ball
+                        if (!level.isClientSide()) {
+                            GlowBallEntity glowBallEntity = new GlowBallEntity(player, level);
+                            glowBallEntity.shootFromRotation(player, player.getXRot(), player.getYRot(), 0.0F, 2.0F, 1.0F);
+                            level.addFreshEntity(glowBallEntity);
+                        }
+
+                        if (!player.isCreative()) {
+                            // Drain ink from Ink Gun
+                            LazyOptional<IFluidHandlerItem> handler = FluidUtil.getFluidHandler(inkGun);
+                            handler.ifPresent((fluidHandler) -> fluidHandler.drain(INK_USE_AMOUNT, IFluidHandler.FluidAction.EXECUTE));
+                        }
+                        player.getCooldowns().addCooldown(this, 10);
+                    } else if (fluidStack.hasTag()) {
+                        CompoundTag tag = fluidStack.getOrCreateTag();
+                        tag.remove("Fluid");
+                        if (tag.isEmpty()) {
+                            fluidStack.setTag(null);
+                        }
+                    }
+                }
             }
         }
         return InteractionResultHolder.pass(inkGun);
@@ -194,39 +222,7 @@ public class InkGunItem extends Item {
 
     @Override
     public void onUsingTick(ItemStack stack, LivingEntity user, int count) {
-        Optional<FluidStack> fs = FluidUtil.getFluidContained(stack);
-        if(fs.isPresent() && user instanceof Player player) {
-            if (!player.getCooldowns().isOnCooldown(stack.getItem())) {
-                FluidStack fluidStack = fs.get();
-                if (fluidStack.getFluid() != null && fluidStack.getAmount() >= INK_USE_AMOUNT) {
-                    // Play shoot sound
-                    Level level = user.getLevel();
-                    level.playSound(null, user.getX(), user.getY(), user.getZ(), SHOOT_SOUND,
-                            SoundSource.NEUTRAL, 0.5F, 0.4F / (level.getRandom().nextFloat() * 0.4F + 0.8F)
-                    );
 
-                    // Spawn Glow Ball
-                    if (!level.isClientSide()) {
-                        GlowBallEntity glowBallEntity = new GlowBallEntity(user, level);
-                        glowBallEntity.shootFromRotation(user, user.getXRot(), user.getYRot(), 0.0F, 2.0F, 1.0F);
-                        level.addFreshEntity(glowBallEntity);
-                    }
-
-                    if (!player.isCreative()) {
-                        // Drain ink from Ink Gun
-                        LazyOptional<IFluidHandlerItem> handler = FluidUtil.getFluidHandler(stack);
-                        handler.ifPresent((fluidHandler) -> fluidHandler.drain(INK_USE_AMOUNT, IFluidHandler.FluidAction.EXECUTE));
-                    }
-                    player.getCooldowns().addCooldown(this, 10);
-                } else if (fluidStack.hasTag()) {
-                    CompoundTag tag = fluidStack.getOrCreateTag();
-                    tag.remove("Fluid");
-                    if (tag.isEmpty()) {
-                        fluidStack.setTag(null);
-                    }
-                }
-            }
-        }
     }
 
     @Override
