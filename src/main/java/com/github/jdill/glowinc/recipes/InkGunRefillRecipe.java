@@ -1,42 +1,30 @@
 package com.github.jdill.glowinc.recipes;
 
 import com.github.jdill.glowinc.Registry;
-import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import com.google.gson.JsonSyntaxException;
+import net.minecraft.core.NonNullList;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.GsonHelper;
 import net.minecraft.util.Mth;
 import net.minecraft.world.inventory.CraftingContainer;
-import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.CustomRecipe;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.world.level.Level;
-import net.minecraftforge.common.crafting.conditions.ICondition;
-import net.minecraftforge.registries.ForgeRegistries;
 
 import javax.annotation.Nonnull;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
 import java.util.Optional;
 
 public class InkGunRefillRecipe extends CustomRecipe {
 
-    private final String group;
-    private final Item repairable;
-    private final List<Ingredient> material;
+    private final Ingredient materials;
     private final int ratio;
 
-    public InkGunRefillRecipe(ResourceLocation p_43833_, String group, Item repairable, List<Ingredient> material, int ratio) {
+    public InkGunRefillRecipe(ResourceLocation p_43833_, Ingredient materials, int ratio) {
         super(p_43833_);
-        this.group = group;
-        this.repairable = repairable;
-        this.material = material;
+        this.materials = materials;
         this.ratio = ratio;
     }
 
@@ -47,7 +35,7 @@ public class InkGunRefillRecipe extends CustomRecipe {
 
         for (int i = 0; i < inv.getContainerSize(); ++i) {
             ItemStack itemstack = inv.getItem(i);
-            if (itemstack.getItem() == repairable) {
+            if (itemstack.getItem() == Registry.INK_GUN_ITEM.get()) {
                 if (gun.isEmpty()) {
                     gun = itemstack;
                 } else {
@@ -55,15 +43,13 @@ public class InkGunRefillRecipe extends CustomRecipe {
                     return false;
                 }
             } else if (!itemstack.isEmpty()) {
-                for (Ingredient ingredient : material) {
-                    if (ingredient.test(itemstack)) {
-                        ink++;
-                        break;
-                    } else {
-                        // Unknown item in the grid.
-                        return false;
-                    }
+                if (materials.test(itemstack)) {
+                    ink++;
+                } else {
+                    // Unknown item in the grid.
+                    return false;
                 }
+
             } else if (itemstack != ItemStack.EMPTY) {
                 return false;
             }
@@ -80,19 +66,17 @@ public class InkGunRefillRecipe extends CustomRecipe {
 
         for (int i = 0; i < inv.getContainerSize(); ++i) {
             ItemStack itemstack = inv.getItem(i);
-            if (itemstack.getItem() == repairable) {
+            if (itemstack.getItem() == Registry.INK_GUN_ITEM.get()) {
                 gun = itemstack;
             } else if (!itemstack.isEmpty()) {
-                for (Ingredient ingredient : material) {
-                    if (ingredient.test(itemstack)) {
-                        ink++;
-                        break;
-                    }
+                if (materials.test(itemstack)) {
+                    ink++;
                 }
+
             }
         }
         int damage = Mth.clamp(gun.getDamageValue() - Mth.ceil(gun.getMaxDamage() / ratio) * ink, 0, gun.getMaxDamage());
-        ItemStack result = new ItemStack(repairable, 1, gun.getTag());
+        ItemStack result = new ItemStack(Registry.INK_GUN_ITEM.get(), 1, gun.getTag());
         result.setDamageValue(damage);
         return result;
     }
@@ -108,64 +92,35 @@ public class InkGunRefillRecipe extends CustomRecipe {
         return Registry.INK_GUN_REFILL.get();
     }
 
+    @Nonnull
+    @Override
+    public NonNullList<Ingredient> getIngredients() {
+        return NonNullList.of(Ingredient.EMPTY, materials);
+    }
+
     public static class Serializer implements RecipeSerializer<InkGunRefillRecipe> {
-        @Nonnull
-        @Override
-        public InkGunRefillRecipe fromJson(@Nonnull ResourceLocation recipeId, @Nonnull JsonObject json, ICondition.IContext context) {
-            String group = GsonHelper.getAsString(json, "group", "");
-            String s = GsonHelper.getAsString(json, "repairable");
-            Item repairable = ForgeRegistries.ITEMS.getValue(new ResourceLocation(s));
-            if (repairable == null) {
-                throw new JsonSyntaxException("Unknown item '" + s + "'");
-            }
-            JsonArray materials = GsonHelper.getAsJsonArray(json, "material");
-            List<Ingredient> ingredients = new ArrayList<>(Collections.emptyList());
-            for (JsonElement material : materials) {
-                ingredients.add(Ingredient.fromJson(material));
-            }
-            int ratio = GsonHelper.getAsInt(json, "ratio");
-            return new InkGunRefillRecipe(recipeId, group, repairable, ingredients, ratio);
-        }
 
         @Override
         public InkGunRefillRecipe fromJson(ResourceLocation recipeId, JsonObject json) {
-            String group = GsonHelper.getAsString(json, "group", "");
-            String s = GsonHelper.getAsString(json, "repairable");
-            Item repairable = ForgeRegistries.ITEMS.getValue(new ResourceLocation(s));
-            if (repairable == null) {
-                throw new JsonSyntaxException("Unknown item '" + s + "'");
-            }
-            JsonArray materials = GsonHelper.getAsJsonArray(json, "material");
-            List<Ingredient> ingredients = new ArrayList<>(Collections.emptyList());
-            for (JsonElement material : materials) {
-                ingredients.add(Ingredient.fromJson(material));
-            }
+            Ingredient materials = Ingredient.fromJson(GsonHelper.getAsJsonArray(json, "materials"));
             int ratio = GsonHelper.getAsInt(json, "ratio");
-            return new InkGunRefillRecipe(recipeId, group, repairable, ingredients, ratio);
+            return new InkGunRefillRecipe(recipeId, materials, ratio);
         }
 
         @Override
         public InkGunRefillRecipe fromNetwork(@Nonnull ResourceLocation recipeId, FriendlyByteBuf buffer) {
-            String group = buffer.readUtf(256);
-            Item repairable = Item.byId(buffer.readVarInt());
-            Ingredient material = Ingredient.fromNetwork(buffer);
-            List<Ingredient> ingredients = new ArrayList<>(Collections.emptyList());
-            for (ItemStack item : material.getItems()) {
-                ingredients.add(Ingredient.of(item));
-            }
-            int ratio = buffer.readVarInt();
-            return new InkGunRefillRecipe(recipeId, group, repairable, ingredients, ratio);
+            Ingredient ingredient = Ingredient.fromNetwork(buffer);
+            int ratio = buffer.readInt();
+            return new InkGunRefillRecipe(recipeId, ingredient, ratio);
         }
 
         @Override
         public void toNetwork(FriendlyByteBuf buffer, InkGunRefillRecipe recipe) {
-            buffer.writeUtf(recipe.group);
-            buffer.writeVarInt(Item.getId(recipe.repairable));
-            Ingredient material = Ingredient.fromNetwork(buffer);
-            for (ItemStack item : material.getItems()) {
-                Ingredient.of(item).toNetwork(buffer);
+            NonNullList<Ingredient> ingredients = recipe.getIngredients();
+            if (!ingredients.isEmpty()) {
+                ingredients.get(0).toNetwork(buffer);
             }
-            buffer.writeVarInt(recipe.ratio);
+            buffer.writeInt(recipe.ratio);
         }
 
     }
