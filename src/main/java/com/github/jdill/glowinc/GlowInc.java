@@ -2,6 +2,7 @@ package com.github.jdill.glowinc;
 
 import com.github.jdill.glowinc.client.ClientSetup;
 import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.fml.DistExecutor;
 import net.minecraftforge.fml.ModLoadingContext;
@@ -28,6 +29,7 @@ public class GlowInc {
         Registry.RECIPES.register(modEventBus);
 
         DistExecutor.safeRunWhenOn(Dist.CLIENT, () -> ClientSetup::initEarly);
+        MinecraftForge.EVENT_BUS.register(ClientSetup.class);
     }
 
 }

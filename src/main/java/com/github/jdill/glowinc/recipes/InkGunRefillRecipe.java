@@ -98,6 +98,10 @@ public class InkGunRefillRecipe extends CustomRecipe {
         return NonNullList.of(Ingredient.EMPTY, materials);
     }
 
+    public Optional<Ingredient> getIngredient() {
+        return getIngredients().stream().findFirst();
+    }
+
     public static class Serializer implements RecipeSerializer<InkGunRefillRecipe> {
 
         @Override
@@ -116,10 +120,7 @@ public class InkGunRefillRecipe extends CustomRecipe {
 
         @Override
         public void toNetwork(FriendlyByteBuf buffer, InkGunRefillRecipe recipe) {
-            NonNullList<Ingredient> ingredients = recipe.getIngredients();
-            if (!ingredients.isEmpty()) {
-                ingredients.get(0).toNetwork(buffer);
-            }
+            recipe.getIngredient().ifPresent(ingredient -> ingredient.toNetwork(buffer));
             buffer.writeInt(recipe.ratio);
         }
 

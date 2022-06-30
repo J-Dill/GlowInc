@@ -10,7 +10,6 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
-import net.minecraft.util.Mth;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.entity.LivingEntity;
@@ -19,7 +18,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.CraftingContainer;
 import net.minecraft.world.item.*;
-import net.minecraft.world.item.crafting.RecipeType;
+import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.level.Level;
 import net.minecraftforge.common.capabilities.ICapabilityProvider;
 import net.minecraftforge.common.util.LazyOptional;
@@ -28,9 +27,11 @@ import net.minecraftforge.fluids.FluidUtil;
 import net.minecraftforge.fluids.capability.CapabilityFluidHandler;
 import net.minecraftforge.fluids.capability.IFluidHandler;
 import net.minecraftforge.fluids.capability.IFluidHandlerItem;
+import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -44,7 +45,19 @@ public class InkGunItem extends Item {
     private static final SoundEvent SHOOT_SOUND = SoundEvents.SLIME_ATTACK;
 
     public InkGunItem() {
-        super(new Properties().stacksTo(1).tab(CreativeModeTab.TAB_TOOLS).setNoRepair());
+        super(new Properties()
+                .stacksTo(1)
+                .tab(CreativeModeTab.TAB_TOOLS)
+                .setNoRepair()
+                .defaultDurability(INK_GUN_CAPACITY));
+    }
+
+    @Nonnull
+    @Override
+    public ItemStack getDefaultInstance() {
+        NonNullList<ItemStack> guns = NonNullList.create();
+        addInkGunWithAmount(guns, 0);
+        return guns.get(0);
     }
 
     @Override
@@ -80,49 +93,49 @@ public class InkGunItem extends Item {
     }
 
     @Override
-    public int getBarWidth(@Nonnull ItemStack stack) {
-        Optional<FluidStack> fluidContained = FluidUtil.getFluidContained(stack);
-        if (fluidContained.isPresent()) {
-            int currentAmount = fluidContained.get().getAmount();
-            return Math.min(13 * currentAmount / INK_GUN_CAPACITY, 13);
-        }
-        return 0;
-    }
-
-    @Override
     public boolean isBarVisible(@Nonnull ItemStack stack) {
         return true;
     }
 
-    @Override
-    public int getBarColor(@Nonnull ItemStack stack) {
-        Optional<FluidStack> fluidContained = FluidUtil.getFluidContained(stack);
-        if (fluidContained.isPresent()) {
-            int currentAmount = fluidContained.get().getAmount();
-            return Mth.hsvToRgb(Math.max(0.0F, (float) currentAmount / (float) INK_GUN_CAPACITY) / 3.0F, 1.0F, 1.0F);
-        }
-        return super.getBarColor(stack);
-    }
+
 
     @Override
     public void fillItemCategory(@Nonnull CreativeModeTab tab, @Nonnull NonNullList<ItemStack> subItems) {
-        // Creates an empty version of the Ink Gun.
-        super.fillItemCategory(tab, subItems);
-        if (!this.allowedIn(tab)) {
-            return;
-        }
+        if (this.allowedIn(tab)) {
+            // Creates an empty version of the Ink Gun.
+            addInkGunWithAmount(subItems, 0);
 
-        // Creates a full version of the Ink Gun.
-        FluidStack fluidStack = new FluidStack(Registry.GLOW_INK_FLUID.get(), INK_GUN_CAPACITY);
+            // Creates a full version of the Ink Gun.
+            addInkGunWithAmount(subItems, INK_GUN_CAPACITY);
+        }
+    }
+
+    /**
+     * Add an Ink Gun with given amount of fluid in tank to the provided list.
+     * @param itemList The list to add the Ink Gun to.
+     * @param amount Amount of fluid to add.
+     */
+    private void addInkGunWithAmount(NonNullList<ItemStack> itemList, int amount) {
+        FluidStack fluidStack = new FluidStack(Registry.GLOW_INK_FLUID.get(), amount);
         ItemStack itemStack = new ItemStack(this);
         if (CapabilityFluidHandler.FLUID_HANDLER_ITEM_CAPABILITY != null) {
             LazyOptional<IFluidHandlerItem> maybeHandler = itemStack.getCapability(CapabilityFluidHandler.FLUID_HANDLER_ITEM_CAPABILITY);
             maybeHandler.ifPresent((fluidHandler) -> {
                 fluidHandler.fill(fluidStack, IFluidHandler.FluidAction.EXECUTE);
                 ItemStack filledStack = fluidHandler.getContainer();
-                subItems.add(filledStack);
+                itemList.add(filledStack);
             });
         }
+    }
+
+    @Override
+    public boolean isDamageable(ItemStack stack) {
+        return super.isDamageable(stack);
+    }
+
+    @Override
+    public boolean isDamaged(ItemStack stack) {
+        return super.isDamaged(stack);
     }
 
     @Override
@@ -132,7 +145,7 @@ public class InkGunItem extends Item {
 
     @Override
     public int getDamage(ItemStack stack) {
-        Optional<FluidStack> fluidStack = FluidUtil.getFluidContained(stack);
+        Optional<FluidStack> fluidStack = getFluidContained(stack);
         return INK_GUN_CAPACITY - fluidStack.map(FluidStack::getAmount).orElse(0);
     }
 
@@ -144,23 +157,40 @@ public class InkGunItem extends Item {
         );
     }
 
+    public static Optional<FluidStack> getFluidContained(@NotNull ItemStack container) {
+        if (!container.isEmpty()) {
+            Optional<FluidStack> fluidContained = FluidUtil.getFluidHandler(container)
+                    .map(handler -> handler.drain(Integer.MAX_VALUE, IFluidHandler.FluidAction.SIMULATE));
+            if (fluidContained.isPresent() && !fluidContained.get().isEmpty()) {
+                return fluidContained;
+            }
+        }
+        return Optional.empty();
+    }
+
     @Nonnull
     @Override
     public InteractionResultHolder<ItemStack> use(@Nonnull Level level, Player player, @Nonnull InteractionHand hand) {
         ItemStack inkGun = player.getItemInHand(hand);
         Optional<FluidStack> fs = FluidUtil.getFluidContained(inkGun);
+        LazyOptional<IFluidHandlerItem> handler = FluidUtil.getFluidHandler(inkGun);
         if (!player.isUsingItem()) {
-            if (player.isShiftKeyDown()) {
+            if (player.isShiftKeyDown() && inkGun.isDamaged()) {
                 // Player can refill Ink Gun by shift-clicking it with Pure Glow Bottle in their inventory.
                 Inventory inventory = player.getInventory();
-                int pureBottleSlot = inventory.findSlotMatchingItem(new ItemStack(Registry.PURE_GLOW_BOTTLE.get()));
-                if (pureBottleSlot >= 0) {
-                    ItemStack bottleStack = inventory.getItem(pureBottleSlot);
-                    InkGunRefillRecipe refillRecipe = InkGunRefillRecipe.getInstance(level);
-                    CraftingContainer container = getInkGunRefillContainer(inkGun, bottleStack);
+                InkGunRefillRecipe refillRecipe = InkGunRefillRecipe.getInstance(level);
+                Ingredient ingredient = refillRecipe.getIngredient().orElse(Ingredient.EMPTY);
+                Optional<ItemStack> firstRefillItem = Arrays.stream(ingredient.getItems())
+                        .filter(itemStack -> !itemStack.isEmpty())
+                        .filter(itemStack -> 0 <= inventory.findSlotMatchingItem(itemStack))
+                        .findFirst();
+                if (firstRefillItem.isPresent()) {
+                    int refillItemSlot = inventory.findSlotMatchingItem(firstRefillItem.get());
+                    ItemStack refillItemStack = inventory.getItem(refillItemSlot);
+                    CraftingContainer container = getInkGunRefillContainer(inkGun, refillItemStack);
                     ItemStack filledGun = refillRecipe.assemble(container);
                     player.setItemInHand(hand, filledGun);
-                    NonNullList<ItemStack> remainingItems = level.getRecipeManager().getRemainingItemsFor(RecipeType.CRAFTING, container, level);
+                    NonNullList<ItemStack> remainingItems = refillRecipe.getRemainingItems(container);
                     if (!remainingItems.isEmpty()) {
                         for (ItemStack remainingItem : remainingItems) {
                             if (!remainingItem.isEmpty()) {
@@ -169,7 +199,7 @@ public class InkGunItem extends Item {
                         }
 
                     }
-                    bottleStack.shrink(1);
+                    refillItemStack.shrink(1);
                 }
             } else if (fs.isPresent()) {
                 // If there is ink, shoot the gun.
@@ -190,7 +220,6 @@ public class InkGunItem extends Item {
 
                         if (!player.isCreative()) {
                             // Drain ink from Ink Gun
-                            LazyOptional<IFluidHandlerItem> handler = FluidUtil.getFluidHandler(inkGun);
                             handler.ifPresent((fluidHandler) -> fluidHandler.drain(INK_USE_AMOUNT, IFluidHandler.FluidAction.EXECUTE));
                         }
                         player.getCooldowns().addCooldown(this, 10);
