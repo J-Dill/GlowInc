@@ -4,6 +4,7 @@ import com.github.jdill.glowinc.Registry;
 import com.github.jdill.glowinc.entity.projectile.GlowBallEntity;
 import com.github.jdill.glowinc.fluids.InkGunFluidHandler;
 import com.github.jdill.glowinc.recipes.InkGunRefillRecipe;
+import net.minecraft.ChatFormatting;
 import net.minecraft.core.NonNullList;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
@@ -56,6 +57,8 @@ public class InkGunItem extends Item {
             String amountMsg = "Ink: " + amount + "/" + INK_GUN_CAPACITY;
             textList.add(Component.literal(amountMsg));
         }
+        textList.add(Component.literal("Can be refilled by combining w/ Pure Glow Bottles or shift-clicking with them in your inventory.")
+                .withStyle(ChatFormatting.GRAY).withStyle(ChatFormatting.ITALIC));
     }
 
     @Nonnull
@@ -158,18 +161,21 @@ public class InkGunItem extends Item {
                     ItemStack bottleStack = inventory.getItem(pureBottleSlot);
                     InkGunRefillRecipe refillRecipe = InkGunRefillRecipe.getInstance(level);
                     CraftingContainer container = getInkGunRefillContainer(inkGun, bottleStack);
-                    ItemStack filledGun = refillRecipe.assemble(container);
-                    player.setItemInHand(hand, filledGun);
-                    NonNullList<ItemStack> remainingItems = level.getRecipeManager().getRemainingItemsFor(RecipeType.CRAFTING, container, level);
-                    if (!remainingItems.isEmpty()) {
-                        for (ItemStack remainingItem : remainingItems) {
-                            if (!remainingItem.isEmpty()) {
-                                inventory.add(remainingItem);
+                    if (refillRecipe.matches(container, level)) {
+                        ItemStack filledGun = refillRecipe.assemble(container);
+                        player.setItemInHand(hand, filledGun);
+                        NonNullList<ItemStack> remainingItems = level.getRecipeManager()
+                                .getRemainingItemsFor(RecipeType.CRAFTING, container, level);
+                        if (!remainingItems.isEmpty()) {
+                            for (ItemStack remainingItem : remainingItems) {
+                                if (!remainingItem.isEmpty()) {
+                                    inventory.add(remainingItem);
+                                }
                             }
-                        }
 
+                        }
+                        bottleStack.shrink(1);
                     }
-                    bottleStack.shrink(1);
                 }
             } else if (fs.isPresent()) {
                 // If there is ink, shoot the gun.
