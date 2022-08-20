@@ -155,7 +155,7 @@ public class InkGunItem extends Item {
         ItemStack inkGun = player.getItemInHand(hand);
         Optional<FluidStack> fs = FluidUtil.getFluidContained(inkGun);
         if (!player.isUsingItem()) {
-            if (player.isShiftKeyDown()) {
+            if (player.isShiftKeyDown() && !player.isSwimming()) {
                 // Player can refill Ink Gun by shift-clicking it with Pure Glow Bottle in their inventory.
                 Inventory inventory = player.getInventory();
                 int pureBottleSlot = inventory.findSlotMatchingItem(new ItemStack(Registry.PURE_GLOW_BOTTLE.get()));
