@@ -40,8 +40,8 @@ public class InkGunItem extends Item {
 
     public static final String ID = "ink_gun";
 
-    private static final int INK_GUN_CAPACITY = 6400;
-    private static final int INK_USE_AMOUNT = 100;
+    public static final int INK_GUN_CAPACITY = 6400;
+    public static final int INK_USE_AMOUNT = 100;
     private static final SoundEvent SHOOT_SOUND = SoundEvents.SLIME_ATTACK;
 
     public InkGunItem() {
@@ -146,6 +146,8 @@ public class InkGunItem extends Item {
                 (e) -> e.fill(new FluidStack(Registry.GLOW_INK_FLUID.get(), INK_GUN_CAPACITY - damage), IFluidHandler.FluidAction.EXECUTE)
         );
     }
+
+
 
     @Nonnull
     @Override

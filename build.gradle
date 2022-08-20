@@ -19,6 +19,15 @@ archivesBaseName = "${mod_id}"
 
 java.toolchain.languageVersion = JavaLanguageVersion.of(17)
 
+sourceSets {
+    gametest {
+        compileClasspath += main.compileClasspath
+        runtimeClasspath += main.runtimeClasspath
+        compileClasspath += main.output
+        runtimeClasspath += main.output
+    }
+}
+
 minecraft {
     mappings channel: 'official', version: version_mc
 
@@ -28,10 +37,15 @@ minecraft {
 
             property 'forge.logging.markers', 'SCAN,REGISTRIES,REGISTRYDUMP'
             property 'forge.logging.console.level', 'debug'
+            property 'mixin.env.remapRefMap', 'true'
+            property 'mixin.env.refMapRemappingFile', "${buildDir}/createSrgToMcp/output.srg"
+
+            ideaModule project.name + ".gametest"
 
             mods {
                 glowinc {
                     source sourceSets.main
+                    source sourceSets.gametest
                 }
             }
         }
@@ -42,9 +56,12 @@ minecraft {
             property 'forge.logging.markers', 'SCAN,REGISTRIES,REGISTRYDUMP'
             property 'forge.logging.console.level', 'debug'
 
+            ideaModule project.name + ".gametest"
+
             mods {
                 glowinc {
                     source sourceSets.main
+                    source sourceSets.gametest
                 }
             }
         }
@@ -60,6 +77,22 @@ minecraft {
             mods {
                 glowinc {
                     source sourceSets.main
+                }
+            }
+        }
+
+        gameTestServer {
+            workingDirectory project.file('run')
+
+            property 'forge.logging.markers', ''
+            property 'forge.logging.console.level', 'debug'
+
+            ideaModule project.name + ".gametest"
+
+            mods {
+                glowinc {
+                    source sourceSets.main
+                    source sourceSets.gametest
                 }
             }
         }
