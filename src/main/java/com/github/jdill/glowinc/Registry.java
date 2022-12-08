@@ -5,17 +5,15 @@ import com.github.jdill.glowinc.entity.projectile.GlowBallEntity;
 import com.github.jdill.glowinc.items.GlowBallItem;
 import com.github.jdill.glowinc.items.PureGlowBottleColor;
 import com.github.jdill.glowinc.items.PureGlowBottleItem;
+import com.github.jdill.glowinc.potions.PureGlowBottlePotion;
+import com.github.jdill.glowinc.potions.brewing.PureGlowPotionRecipe;
 import net.minecraft.client.renderer.entity.ThrownItemRenderer;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.MobCategory;
 import net.minecraft.world.item.Item;
-import net.minecraft.world.item.Items;
 import net.minecraft.world.item.alchemy.Potion;
-import net.minecraft.world.item.alchemy.PotionUtils;
-import net.minecraft.world.item.alchemy.Potions;
-import net.minecraft.world.item.crafting.Ingredient;
+import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.client.event.ColorHandlerEvent;
@@ -34,6 +32,7 @@ public class Registry {
     public static final DeferredRegister<Block> BLOCKS = DeferredRegister.create(ForgeRegistries.BLOCKS, GlowInc.MODID);
     public static final DeferredRegister<Item> ITEMS = DeferredRegister.create(ForgeRegistries.ITEMS, GlowInc.MODID);
     public static final DeferredRegister<EntityType<?>> ENTITIES = DeferredRegister.create(ForgeRegistries.ENTITIES, GlowInc.MODID);
+    public static final DeferredRegister<Potion> POTIONS = DeferredRegister.create(ForgeRegistries.POTIONS, GlowInc.MODID);
 
     //===============
     // Blocks
@@ -47,6 +46,11 @@ public class Registry {
     public static final RegistryObject<Item> PURE_GLOW_BOTTLE = ITEMS.register(PureGlowBottleItem.ID, PureGlowBottleItem::new);
 
     //===============
+    // Potions
+    //===============
+    public static final RegistryObject<Potion> PURE_GLOW_POTION = POTIONS.register(PureGlowBottlePotion.ID, PureGlowBottlePotion::new);
+
+    //===============
     // Entities
     //===============
     public static final RegistryObject<EntityType<GlowBallEntity>> GLOW_BALL_ENTITY = ENTITIES.register(GlowBallEntity.ID,
@@ -55,6 +59,7 @@ public class Registry {
                 .setTrackingRange(4)
                 .setShouldReceiveVelocityUpdates(true)
                 .build(GlowBallEntity.ID));
+
 
     @SubscribeEvent
     @OnlyIn(Dist.CLIENT)
@@ -71,11 +76,7 @@ public class Registry {
     @SubscribeEvent
     public static void registerPotions(FMLCommonSetupEvent event) {
         event.enqueueWork(() ->
-                BrewingRecipeRegistry.addRecipe(
-                        Ingredient.of(PotionUtils.setPotion(Items.POTION.getDefaultInstance(), Potions.WATER)),
-                        Ingredient.of(Items.GLOW_INK_SAC),
-                        PURE_GLOW_BOTTLE.get().getDefaultInstance()
-                )
+                BrewingRecipeRegistry.addRecipe(new PureGlowPotionRecipe())
         );
     }
 
