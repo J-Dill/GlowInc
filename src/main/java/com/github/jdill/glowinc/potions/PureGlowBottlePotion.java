@@ -1,6 +1,7 @@
 package com.github.jdill.glowinc.potions;
 
 import com.github.jdill.glowinc.Registry;
+import com.github.jdill.glowinc.items.PureGlowBottleColor;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.item.ItemStack;
@@ -17,7 +18,9 @@ public class PureGlowBottlePotion extends Potion {
     }
 
     public static ItemStack getPureGlowPotion() {
-        return PotionUtils.setPotion(new ItemStack(Items.POTION), Registry.PURE_GLOW_POTION.get()).copy();
+        ItemStack potion = PotionUtils.setPotion(new ItemStack(Items.POTION), Registry.PURE_GLOW_POTION.get());
+        potion.getOrCreateTag().putInt(PotionUtils.TAG_CUSTOM_POTION_COLOR, PureGlowBottleColor.LIQUID_COLOR);
+        return potion.copy();
     }
 
 }

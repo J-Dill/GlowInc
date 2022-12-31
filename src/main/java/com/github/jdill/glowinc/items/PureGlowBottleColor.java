@@ -7,7 +7,7 @@ import javax.annotation.Nonnull;
 
 public class PureGlowBottleColor implements ItemColor {
 
-    private static final int LIQUID_COLOR = 65522;
+    public static final int LIQUID_COLOR = 65522;
 
     @Override
     public int getColor(@Nonnull ItemStack stack, int layer) {

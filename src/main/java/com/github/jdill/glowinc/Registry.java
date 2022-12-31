@@ -12,7 +12,6 @@ import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.MobCategory;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.alchemy.Potion;
-import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.world.level.block.Block;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -74,7 +73,7 @@ public class Registry {
     }
 
     @SubscribeEvent
-    public static void registerPotions(FMLCommonSetupEvent event) {
+    public static void registerBrewingRecipes(FMLCommonSetupEvent event) {
         event.enqueueWork(() ->
                 BrewingRecipeRegistry.addRecipe(new PureGlowPotionRecipe())
         );
